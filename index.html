@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@mom.sleep.lab 콘텐츠 마스터</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+:root { --navy:#2A3A4A; --gold:#C8A84B; --beige:#F5F0EA; --border:#E8E0D4; --mid:#6B5E54; --light:#B0A090; --sky:#8AAEC0; --sage:#8A9E8A; --blush:#D4907A; }
+body { font-family:'Nanum Gothic',sans-serif; background:var(--beige); color:#2A2420; }
+
+.hdr { background:var(--navy); padding:18px 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.hdr h1 { font-family:'Nanum Myeongjo',serif; font-size:18px; color:#fff; }
+.hdr .sub { font-size:10px; color:rgba(255,255,255,0.4); margin-top:3px; }
+.stats { display:flex; gap:8px; flex-wrap:wrap; }
+.stat { background:rgba(255,255,255,0.07); border-radius:8px; padding:7px 12px; text-align:center; }
+.sn { font-size:18px; font-weight:800; color:var(--gold); }
+.sl { font-size:9px; color:rgba(255,255,255,0.4); }
+
+.tabs { display:flex; background:#E8E0D4; border-bottom:2px solid var(--border); padding:0 24px; overflow-x:auto; }
+.tab { padding:11px 14px; font-size:11px; font-weight:700; color:#8A7A6A; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; white-space:nowrap; }
+.tab.on { color:var(--navy); border-bottom-color:var(--navy); }
+
+.pane { padding:20px 24px; display:none; }
+.pane.on { display:block; }
+
+.sec { font-family:'Nanum Myeongjo',serif; font-size:14px; font-weight:800; color:var(--navy); margin-bottom:12px; padding-bottom:7px; border-bottom:2px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.sec-left { display:flex; align-items:center; gap:7px; }
+.bge { background:var(--navy); color:#fff; font-size:9px; font-weight:800; padding:2px 7px; border-radius:20px; font-family:'Nanum Gothic',sans-serif; }
+
+/* 다운로드 버튼 */
+.dl-btn { font-size:9px; font-weight:800; padding:5px 10px; border-radius:20px; cursor:pointer; border:none; background:var(--gold); color:#2A1A0A; font-family:'Nanum Gothic',sans-serif; text-decoration:none; display:inline-flex; align-items:center; gap:4px; }
+.dl-btn:hover { opacity:0.85; }
+
+/* 진행 바 */
+.pw { background:#fff; border-radius:10px; padding:14px 16px; border:1px solid var(--border); margin-bottom:16px; }
+.pt { font-size:11px; font-weight:800; color:var(--mid); margin-bottom:8px; }
+.ptrack { background:#F0EAE0; border-radius:100px; height:8px; overflow:hidden; margin-bottom:5px; }
+.pfill { height:100%; border-radius:100px; background:linear-gradient(90deg,var(--sage),var(--gold)); transition:width 0.4s; }
+.plbls { display:flex; justify-content:space-between; font-size:10px; color:var(--light); }
+
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; margin-bottom:24px; }
+
+/* 카드 */
+.card { background:#fff; border-radius:10px; padding:14px; border:1px solid var(--border); }
+.card:hover { box-shadow:0 2px 10px rgba(0,0,0,0.06); }
+.ct { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:7px; }
+.inum { font-size:9px; font-weight:800; color:var(--light); letter-spacing:1px; }
+.tbge { font-size:8px; font-weight:800; padding:2px 7px; border-radius:20px; }
+.tf{background:#EDF4F8;color:#4A7A9A} .tr{background:#FBF0EC;color:#A04A30} .ti{background:#FBF8EC;color:#8A6020} .tp{background:#EFF5EF;color:#3A6A3A} .tc{background:#F0EDF8;color:#5A3A8A}
+
+.ititle { font-family:'Nanum Myeongjo',serif; font-size:13px; font-weight:800; color:#2A2420; margin-bottom:3px; line-height:1.4; }
+.isub { font-size:9px; color:var(--light); margin-bottom:5px; line-height:1.5; }
+.itags { font-size:9px; color:var(--sky); line-height:1.6; margin-bottom:4px; }
+
+/* 상태 영역 */
+.sarea { border-top:1px solid #F0EAE0; margin-top:9px; padding-top:9px; display:flex; flex-direction:column; gap:6px; }
+.srow { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.slbl { font-size:9px; font-weight:700; color:var(--mid); min-width:50px; }
+.sbtns { display:flex; gap:3px; }
+.sb { font-size:8px; font-weight:800; padding:3px 7px; border-radius:20px; cursor:pointer; border:1.5px solid transparent; background:transparent; font-family:'Nanum Gothic',sans-serif; }
+.sb.pending { border-color:#E0D0C0; color:#B0A090; }
+.sb.pending.on { background:#F0E8DC; color:#8A7060; border-color:#C8B098; }
+.sb.uploaded { border-color:#A0C8A0; color:#5A8A5A; }
+.sb.uploaded.on { background:#E0F0E0; color:#3A6A3A; border-color:#8AB88A; }
+.sb.skip { border-color:#C8C0C0; color:#A09090; }
+.sb.skip.on { background:#F0ECEC; color:#806060; border-color:#C0A0A0; }
+
+.dinput { font-size:9px; font-family:'Nanum Gothic',sans-serif; border:1.5px solid var(--border); border-radius:5px; padding:3px 6px; color:var(--navy); background:#FAFAF7; outline:none; }
+.dinput:focus { border-color:var(--gold); }
+.minput { font-size:9px; font-family:'Nanum Gothic',sans-serif; border:1.5px solid var(--border); border-radius:5px; padding:3px 6px; color:var(--mid); background:#FAFAF7; outline:none; width:100%; resize:none; }
+.minput:focus { border-color:var(--gold); }
+.minput::placeholder { color:#C8C0B8; }
+
+/* 캡션 */
+.ctog { font-size:9px; font-weight:700; color:var(--sky); cursor:pointer; padding:4px 0 0; display:flex; align-items:center; gap:3px; }
+.ctog:hover { color:#4A7A9A; }
+.cbox { display:none; margin-top:6px; background:#F8F5F0; border-radius:6px; padding:9px 11px; font-size:9px; color:var(--mid); line-height:1.7; white-space:pre-wrap; border-left:3px solid var(--gold); max-height:150px; overflow-y:auto; }
+.cbox.on { display:block; }
+.copy-btn { font-size:8px; font-weight:800; color:var(--gold); cursor:pointer; padding:2px 7px; border:1px solid var(--gold); border-radius:10px; background:transparent; font-family:'Nanum Gothic',sans-serif; margin-top:5px; }
+.copy-btn:hover { background:rgba(200,168,75,0.1); }
+
+/* 캘린더 */
+.ctable { width:100%; border-collapse:collapse; font-size:11px; }
+.ctable th { background:var(--navy); color:#fff; padding:8px 12px; text-align:left; font-size:10px; }
+.ctable td { padding:9px 12px; border-bottom:1px solid #F0EAE0; vertical-align:middle; }
+.ctable tr:nth-child(even) td { background:#FAFAF7; }
+.ctable tr:hover td { background:#F5F0E8; }
+.dc { font-weight:800; color:var(--navy); white-space:nowrap; }
+.dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+.d-done{background:#5A9A5A} .d-ready{background:var(--gold)} .d-pend{background:#C0A090}
+
+/* 결정사항 */
+.dgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:9px; }
+.ditem { background:#fff; border-radius:9px; padding:11px 13px; border-left:3px solid var(--gold); }
+.dkey { font-size:9px; font-weight:800; color:#8A6020; margin-bottom:2px; }
+.dval { font-size:10px; color:#2A2420; line-height:1.5; }
+
+/* 로그 */
+.log { display:flex; gap:9px; padding:7px 0; border-bottom:1px solid #F0EAE0; font-size:10px; }
+.ld { color:var(--light); min-width:46px; font-weight:700; }
+
+/* 저장 버튼 */
+.savebtn { position:fixed; bottom:18px; right:18px; background:var(--gold); color:#2A1A0A; font-size:11px; font-weight:800; border:none; border-radius:24px; padding:11px 18px; cursor:pointer; box-shadow:0 4px 14px rgba(200,168,75,0.4); z-index:100; font-family:'Nanum Gothic',sans-serif; }
+.toast { position:fixed; bottom:62px; right:18px; background:#2A3A4A; color:#fff; font-size:10px; font-weight:700; padding:7px 14px; border-radius:20px; opacity:0; transition:opacity 0.3s; z-index:100; pointer-events:none; }
+.toast.on { opacity:1; }
+
+/* 파일 다운로드 섹션 */
+.dl-section { background:#fff; border-radius:10px; padding:16px; border:1px solid var(--border); margin-bottom:16px; }
+.dl-section-title { font-size:12px; font-weight:800; color:var(--navy); margin-bottom:12px; }
+.dl-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; }
+.dl-item { display:flex; align-items:center; justify-content:space-between; background:#FAFAF7; border-radius:8px; padding:9px 12px; border:1px solid var(--border); }
+.dl-name { font-size:10px; font-weight:700; color:var(--mid); }
+.dl-size { font-size:9px; color:var(--light); margin-top:1px; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <h1>@mom.sleep.lab 콘텐츠 마스터</h1>
+    <div class="sub">🇳🇿 의생명과학 전공 · 미국 IPSP 수면 자격증 · 임신 33주 · 최종업데이트: 2026.04.16</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="sn">25</div><div class="sl">피드</div></div>
+    <div class="stat"><div class="sn">18</div><div class="sl">릴스</div></div>
+    <div class="stat"><div class="sn">3</div><div class="sl">인포그래픽</div></div>
+    <div class="stat"><div class="sn" id="total-done">0</div><div class="sl">업로드완료</div></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab on" onclick="showPane('feeds',this)">📋 피드 (25)</div>
+  <div class="tab" onclick="showPane('reels',this)">🎬 릴스 (18)</div>
+  <div class="tab" onclick="showPane('extras',this)">📊 인포·기타</div>
+  <div class="tab" onclick="showPane('files',this)">📥 파일 다운로드</div>
+  <div class="tab" onclick="showPane('calendar',this)">📅 캘린더</div>
+  <div class="tab" onclick="showPane('decisions',this)">⚙️ 결정사항</div>
+</div>
+
+<!-- ====== 피드 탭 ====== -->
+<div class="pane on" id="p-feeds">
+  <div class="pw">
+    <div class="pt">📋 피드 업로드 현황</div>
+    <div class="ptrack"><div class="pfill" id="fp" style="width:0%"></div></div>
+    <div class="plbls"><span id="ft">0 / 22 완료</span><span id="fp2">0%</span></div>
+  </div>
+  <div class="sec">
+    <div class="sec-left">피드 카드뉴스 <span class="bge">25개</span></div>
+  </div>
+  <div class="grid" id="feed-grid"></div>
+</div>
+
+<!-- ====== 릴스 탭 ====== -->
+<div class="pane" id="p-reels">
+  <div class="pw">
+    <div class="pt">🎬 릴스 업로드 현황</div>
+    <div class="ptrack"><div class="pfill" id="rp" style="width:0%"></div></div>
+    <div class="plbls"><span id="rt">0 / 15 완료</span><span id="rp2">0%</span></div>
+  </div>
+  <div class="sec"><div class="sec-left">릴스 <span class="bge">18개</span></div></div>
+  <div class="grid" id="reels-grid"></div>
+</div>
+
+<!-- ====== 인포·기타 탭 ====== -->
+<div class="pane" id="p-extras">
+  <div class="sec"><div class="sec-left">인포그래픽 <span class="bge">3개</span></div></div>
+  <div class="grid" id="extras-grid"></div>
+  <div class="sec"><div class="sec-left">PDF · 만화 · 상담문서</div></div>
+  <div class="grid" id="extras2-grid"></div>
+</div>
+
+<!-- ====== 파일 다운로드 탭 ====== -->
+<div class="pane" id="p-files">
+  <div class="sec"><div class="sec-left">📥 파일 다운로드</div></div>
+
+  <!-- 피드 -->
+  <div class="dl-section">
+    <div class="dl-section-title">📋 피드 카드뉴스 (25개)</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ① · 0~2개월 아기 수면 가이드</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/0_2개월_Card01_표지.png" download="피드1_01_표지.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/0_2개월_Card02_낮밤혼동.png" download="피드1_02.png">02 낮밤혼동</a>
+          <a class="dl-btn" href="cards_hd/0_2개월_Card03_수면시간표.png" download="피드1_03.png">03 수면시간표</a>
+          <a class="dl-btn" href="cards_hd/0_2개월_Card04_마녀의시간.png" download="피드1_04.png">04 마녀의시간</a>
+          <a class="dl-btn" href="cards_hd/0_2개월_Card05_취침루틴.png" download="피드1_05.png">05 취침루틴</a>
+          <a class="dl-btn" href="cards_hd/0_2개월_Card06_핵심요약.png" download="피드1_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ② · 3~6개월 아기 수면 가이드</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/3_6개월_Card01_표지.png" download="피드2_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/3_6개월_Card02_밤새자기.png" download="피드2_02.png">02 밤새자기</a>
+          <a class="dl-btn" href="cards_hd/3_6개월_Card03_낮잠전환.png" download="피드2_03.png">03 낮잠전환</a>
+          <a class="dl-btn" href="cards_hd/3_6개월_Card04_수면시간표.png" download="피드2_04.png">04 수면시간표</a>
+          <a class="dl-btn" href="cards_hd/3_6개월_Card05_먹수잠.png" download="피드2_05.png">05 먹수잠</a>
+          <a class="dl-btn" href="cards_hd/3_6개월_Card06_핵심요약.png" download="피드2_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ③ · 7~9개월 아기 수면 가이드</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/7_9개월_Card01_표지.png" download="피드3_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/7_9개월_Card02_수면퇴행.png" download="피드3_02.png">02 수면퇴행</a>
+          <a class="dl-btn" href="cards_hd/7_9개월_Card03_울음구분.png" download="피드3_03.png">03 울음구분</a>
+          <a class="dl-btn" href="cards_hd/7_9개월_Card04_낮잠전환스케줄.png" download="피드3_04.png">04 낮잠전환</a>
+          <a class="dl-btn" href="cards_hd/7_9개월_Card05_수면시간표.png" download="피드3_05.png">05 수면시간표</a>
+          <a class="dl-btn" href="cards_hd/7_9개월_Card06_핵심요약.png" download="피드3_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ④ · 재워놓으면 금방 깨요 (수면연관물)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드4_Card01_표지.png" download="피드4_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드4_Card02_연관물이란.png" download="피드4_02.png">02 연관물이란</a>
+          <a class="dl-btn" href="cards_hd/피드4_Card03_신호.png" download="피드4_03.png">03 신호</a>
+          <a class="dl-btn" href="cards_hd/피드4_Card04_먹수잠.png" download="피드4_04.png">04 먹수잠</a>
+          <a class="dl-btn" href="cards_hd/피드4_Card05_독립수면.png" download="피드4_05.png">05 독립수면</a>
+          <a class="dl-btn" href="cards_hd/피드4_Card06_요약.png" download="피드4_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑤ · 수면 교육 골든타임 개월수별 정리</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드5_Card01_표지.png" download="피드5_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드5_Card02_타임라인.png" download="피드5_02.png">02 타임라인</a>
+          <a class="dl-btn" href="cards_hd/피드5_Card03_이르면vs늦으면.png" download="피드5_03.png">03 이르면vs늦으면</a>
+          <a class="dl-btn" href="cards_hd/피드5_Card04_체크리스트.png" download="피드5_04.png">04 체크리스트</a>
+          <a class="dl-btn" href="cards_hd/피드5_Card05_요약.png" download="피드5_05.png">05 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑥ · 자격증 공부 이야기</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드6리메이크_Card01_표지.png" download="피드6_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드6리메이크_Card02_배경스토리.png" download="피드6_02.png">02 배경스토리</a>
+          <a class="dl-btn" href="cards_hd/피드6리메이크_Card03_뇌과학연결.png" download="피드6_03.png">03 뇌과학연결</a>
+          <a class="dl-btn" href="cards_hd/피드6리메이크_Card04_계기.png" download="피드6_04.png">04 계기</a>
+          <a class="dl-btn" href="cards_hd/피드6리메이크_Card05_차별점.png" download="피드6_05.png">05 차별점</a>
+          <a class="dl-btn" href="cards_hd/피드6리메이크_Card06_마무리.png" download="피드6_06.png">06 마무리</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑦ · 취침 루틴 연령별 비교</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드7_Card01_표지.png" download="피드7_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드7_Card02_0~2개월.png" download="피드7_02.png">02 0~2개월</a>
+          <a class="dl-btn" href="cards_hd/피드7_Card03_3~6개월.png" download="피드7_03.png">03 3~6개월</a>
+          <a class="dl-btn" href="cards_hd/피드7_Card04_7~12개월.png" download="피드7_04.png">04 7~12개월</a>
+          <a class="dl-btn" href="cards_hd/피드7_Card05_공통원칙.png" download="피드7_05.png">05 공통원칙</a>
+          <a class="dl-btn" href="cards_hd/피드7_Card06_요약.png" download="피드7_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑧ · 수면 교육 Q&A</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드8_Card01_표지.png" download="피드8_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드8_Card02_Q1~Q2.png" download="피드8_02.png">02 Q1~Q2</a>
+          <a class="dl-btn" href="cards_hd/피드8_Card03_Q3~Q4.png" download="피드8_03.png">03 Q3~Q4</a>
+          <a class="dl-btn" href="cards_hd/피드8_Card04_실제케이스.png" download="피드8_04.png">04 실제케이스</a>
+          <a class="dl-btn" href="cards_hd/피드8_Card05_오해vs사실.png" download="피드8_05.png">05 오해vs사실</a>
+          <a class="dl-btn" href="cards_hd/피드8_Card06_마무리.png" download="피드8_06.png">06 마무리</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑨ · 0~3개월 수면 준비 가이드</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드9_Card01_표지.png" download="피드9_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드9_Card02_왜어려운가.png" download="피드9_02.png">02 왜어려운가</a>
+          <a class="dl-btn" href="cards_hd/피드9_Card03_할수있는것.png" download="피드9_03.png">03 할수있는것</a>
+          <a class="dl-btn" href="cards_hd/피드9_Card04_수면시간표.png" download="피드9_04.png">04 수면시간표</a>
+          <a class="dl-btn" href="cards_hd/피드9_Card05_마녀의시간.png" download="피드9_05.png">05 마녀의시간</a>
+          <a class="dl-btn" href="cards_hd/피드9_Card06_요약.png" download="피드9_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑩ · 속싸개 완벽 가이드</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드10_Card01_표지.png" download="피드10_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드10_Card02_왜하나.png" download="피드10_02.png">02 왜하나</a>
+          <a class="dl-btn" href="cards_hd/피드10_Card03_올바른방법.png" download="피드10_03.png">03 올바른방법</a>
+          <a class="dl-btn" href="cards_hd/피드10_Card04_그만할때.png" download="피드10_04.png">04 그만할때</a>
+          <a class="dl-btn" href="cards_hd/피드10_Card05_자주하는실수.png" download="피드10_05.png">05 자주하는실수</a>
+          <a class="dl-btn" href="cards_hd/피드10_Card06_요약.png" download="피드10_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑪ · 공갈젖꼭지 총정리</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드11_Card01_표지.png" download="피드11_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드11_Card02_장점.png" download="피드11_02.png">02 장점</a>
+          <a class="dl-btn" href="cards_hd/피드11_Card03_문제될때.png" download="피드11_03.png">03 문제될때</a>
+          <a class="dl-btn" href="cards_hd/피드11_Card04_의존도줄이기.png" download="피드11_04.png">04 의존도줄이기</a>
+          <a class="dl-btn" href="cards_hd/피드11_Card05_뗄때.png" download="피드11_05.png">05 뗄때</a>
+          <a class="dl-btn" href="cards_hd/피드11_Card06_요약.png" download="피드11_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑫ · 돌 전후 수면 가이드 (10~14개월)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드12_Card01_표지.png" download="피드12_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드12_Card02_왜흔들리나.png" download="피드12_02.png">02 왜흔들리나</a>
+          <a class="dl-btn" href="cards_hd/피드12_Card03_12개월퇴행.png" download="피드12_03.png">03 12개월퇴행</a>
+          <a class="dl-btn" href="cards_hd/피드12_Card04_낮잠전환.png" download="피드12_04.png">04 낮잠전환</a>
+          <a class="dl-btn" href="cards_hd/피드12_Card05_수면시간표.png" download="피드12_05.png">05 수면시간표</a>
+          <a class="dl-btn" href="cards_hd/피드12_Card06_요약.png" download="피드12_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑬ · 백색소음 완벽 가이드</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드13_Card01_표지.png" download="피드13_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드13_Card02_왜쓰나.png" download="피드13_02.png">02 왜쓰나</a>
+          <a class="dl-btn" href="cards_hd/피드13_Card03_종류.png" download="피드13_03.png">03 종류</a>
+          <a class="dl-btn" href="cards_hd/피드13_Card04_사용법.png" download="피드13_04.png">04 사용법</a>
+          <a class="dl-btn" href="cards_hd/피드13_Card05_끊어도되나.png" download="피드13_05.png">05 끊어도되나</a>
+          <a class="dl-btn" href="cards_hd/피드13_Card06_요약.png" download="피드13_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑭ · 아기 수면 환경 이렇게 하세요</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드14_Card01_표지.png" download="피드14_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드14_Card02_암막.png" download="피드14_02.png">02 암막</a>
+          <a class="dl-btn" href="cards_hd/피드14_Card03_온도.png" download="피드14_03.png">03 온도</a>
+          <a class="dl-btn" href="cards_hd/피드14_Card04_습도.png" download="피드14_04.png">04 습도</a>
+          <a class="dl-btn" href="cards_hd/피드14_Card05_안전환경.png" download="피드14_05.png">05 안전환경</a>
+          <a class="dl-btn" href="cards_hd/피드14_Card06_요약.png" download="피드14_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑮ · 이른 기상 해결법</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드15_Card01_표지.png" download="피드15_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드15_Card02_원인.png" download="피드15_02.png">02 원인</a>
+          <a class="dl-btn" href="cards_hd/피드15_Card03_해결법.png" download="피드15_03.png">03 해결법</a>
+          <a class="dl-btn" href="cards_hd/피드15_Card04_주의사항.png" download="피드15_04.png">04 주의사항</a>
+          <a class="dl-btn" href="cards_hd/피드15_Card05_요약.png" download="피드15_05.png">05 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑯ · 낮잠 30분에 끝나는 이유</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드16_Card01_표지.png" download="피드16_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드16_Card02_이유.png" download="피드16_02.png">02 이유</a>
+          <a class="dl-btn" href="cards_hd/피드16_Card03_해결법.png" download="피드16_03.png">03 해결법</a>
+          <a class="dl-btn" href="cards_hd/피드16_Card04_6개월전.png" download="피드16_04.png">04 6개월전</a>
+          <a class="dl-btn" href="cards_hd/피드16_Card05_요약.png" download="피드16_05.png">05 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑰ · 성장 급등기 수면 대처</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드17_Card01_표지.png" download="피드17_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드17_Card02_시기.png" download="피드17_02.png">02 시기</a>
+          <a class="dl-btn" href="cards_hd/피드17_Card03_증상.png" download="피드17_03.png">03 증상</a>
+          <a class="dl-btn" href="cards_hd/피드17_Card04_대처법.png" download="피드17_04.png">04 대처법</a>
+          <a class="dl-btn" href="cards_hd/피드17_Card05_요약.png" download="피드17_05.png">05 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑱ · 쌍둥이 수면 교육</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드18_Card01_표지.png" download="피드18_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드18_Card02_같이재워도.png" download="피드18_02.png">02 같이재워도</a>
+          <a class="dl-btn" href="cards_hd/피드18_Card03_스케줄.png" download="피드18_03.png">03 스케줄</a>
+          <a class="dl-btn" href="cards_hd/피드18_Card04_혼자할때.png" download="피드18_04.png">04 혼자할때</a>
+          <a class="dl-btn" href="cards_hd/피드18_Card05_요약.png" download="피드18_05.png">05 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑲ · 분리수면 언제부터 가능해요?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드19_Card01_표지.png" download="피드19_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드19_Card02_AAP권고.png" download="피드19_02.png">02 AAP권고</a>
+          <a class="dl-btn" href="cards_hd/피드19_Card03_3개월전.png" download="피드19_03.png">03 3개월전</a>
+          <a class="dl-btn" href="cards_hd/피드19_Card04_바로옆방.png" download="피드19_04.png">04 바로옆방</a>
+          <a class="dl-btn" href="cards_hd/피드19_Card05_타임라인.png" download="피드19_05.png">05 타임라인</a>
+          <a class="dl-btn" href="cards_hd/피드19_Card06_요약.png" download="피드19_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ⑳ · 분리수면을 왜 하는 건가요?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드20_Card01_표지.png" download="피드20_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드20_Card02_정의.png" download="피드20_02.png">02 정의</a>
+          <a class="dl-btn" href="cards_hd/피드20_Card03_왜하나.png" download="피드20_03.png">03 왜하나</a>
+          <a class="dl-btn" href="cards_hd/피드20_Card04_순서.png" download="피드20_04.png">04 순서</a>
+          <a class="dl-btn" href="cards_hd/피드20_Card05_꼭해야하나.png" download="피드20_05.png">05 꼭해야하나</a>
+          <a class="dl-btn" href="cards_hd/피드20_Card06_요약.png" download="피드20_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ㉑ · 잘 자던 아이가 갑자기 혼자 못 잔대요</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드21_Card01_표지.png" download="피드21_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드21_Card02_왜그런가.png" download="피드21_02.png">02 왜그런가</a>
+          <a class="dl-btn" href="cards_hd/피드21_Card03_무서움완화.png" download="피드21_03.png">03 무서움완화</a>
+          <a class="dl-btn" href="cards_hd/피드21_Card04_포스트잇게임.png" download="피드21_04.png">04 포스트잇게임</a>
+          <a class="dl-btn" href="cards_hd/피드21_Card05_재우고나올때.png" download="피드21_05.png">05 재우고나올때</a>
+          <a class="dl-btn" href="cards_hd/피드21_Card06_형제있을때.png" download="피드21_06.png">06 형제있을때</a>
+          <a class="dl-btn" href="cards_hd/피드21_Card07_요약.png" download="피드21_07.png">07 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ㉒ · 두돌 아기 분리수면 시작 가이드</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드22_Card01_표지.png" download="피드22_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드22_Card02_두돌특징.png" download="피드22_02.png">02 두돌특징</a>
+          <a class="dl-btn" href="cards_hd/피드22_Card03_시작전준비.png" download="피드22_03.png">03 시작전준비</a>
+          <a class="dl-btn" href="cards_hd/피드22_Card04_단계별방법.png" download="피드22_04.png">04 단계별방법</a>
+          <a class="dl-btn" href="cards_hd/피드22_Card05_한계시험대처.png" download="피드22_05.png">05 한계시험대처</a>
+          <a class="dl-btn" href="cards_hd/피드22_Card06_요약.png" download="피드22_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ㉓ · 눕히면 우는 신생아, 어떻게 해요?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드23_Card01_표지.png" download="피드23_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드23_Card02_왜그럴까.png" download="피드23_02.png">02 왜그럴까</a>
+          <a class="dl-btn" href="cards_hd/피드23_Card03_강요금지.png" download="피드23_03.png">03 강요금지</a>
+          <a class="dl-btn" href="cards_hd/피드23_Card04_지금당장.png" download="피드23_04.png">04 지금당장</a>
+          <a class="dl-btn" href="cards_hd/피드23_Card05_올바른순서.png" download="피드23_05.png">05 올바른순서</a>
+          <a class="dl-btn" href="cards_hd/피드23_Card06_요약.png" download="피드23_06.png">06 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ㉔ · 출산가방 완성 체크리스트</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="feed24_c01_cover.png" download="피드24_01.png">01 표지</a>
+          <a class="dl-btn" href="feed24_c02_mom1.png" download="피드24_02.png">02 산모용품1</a>
+          <a class="dl-btn" href="feed24_c03_mom2.png" download="피드24_03.png">03 산모용품2</a>
+          <a class="dl-btn" href="feed24_c04_baby.png" download="피드24_04.png">04 아기용품</a>
+          <a class="dl-btn" href="feed24_c05_husband.png" download="피드24_05.png">05 보호자용품</a>
+          <a class="dl-btn" href="feed24_c06_tips.png" download="피드24_06.png">06 놓치기쉬운것</a>
+          <a class="dl-btn" href="feed24_c07_summary.png" download="피드24_07.png">07 요약</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">FEED ㉕ · 성남시 백일해 무료 예방접종</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="cards_hd/피드25_Card01_표지.png" download="피드25_01.png">01 표지</a>
+          <a class="dl-btn" href="cards_hd/피드25_Card02_왜맞아야해.png" download="피드25_02.png">02 왜맞아야해</a>
+          <a class="dl-btn" href="cards_hd/피드25_Card03_타이밍.png" download="피드25_03.png">03 타이밍</a>
+          <a class="dl-btn" href="cards_hd/피드25_Card04_신청방법.png" download="피드25_04.png">04 신청방법</a>
+          <a class="dl-btn" href="feed25_card05_tip.png" download="피드25_05.png">05 꿀팁</a>
+          <a class="dl-btn" href="cards_hd/피드25_Card06_요약.png" download="피드25_06.png">06 요약</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 릴스 -->
+  <div class="dl-section">
+    <div class="dl-section-title">🎬 릴스 (18개 + 홍보릴스)</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ① · 자기소개 소개 릴스</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="reels_intro_slides.png" download="릴스1.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ② · 신생아 부모 실수 TOP 5</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="reels_newborn_slides.png" download="릴스2.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ③ · 낮잠 5시간 넘기면 밤에 못 자요</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="reels3_nap_slides.png" download="릴스3.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ④ · 마녀의 시간 대처법</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="reels4_witching_slides.png" download="릴스4.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑤ · 수면 교육은 내가, 육아휴직은 남편이</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="reels5_story_slides.png" download="릴스5.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑥ · 4개월 수면 퇴행</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="reels6_regression_slides.png" download="릴스6.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑦ · 수면 교육 시작 전 체크리스트</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스7_체크리스트_slides.png" download="릴스7.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑧ · 이런 실수 하고 있지 않나요?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스8_실수_slides.png" download="릴스8.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑨ · 아기방 세팅 가이드</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스9_아기방세팅_slides.png" download="릴스9.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑩ · 이 계정 시작한 이유</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스10_계정시작이유_slides.png" download="릴스10.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑪ · 곧 출산 예고</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스11_출산예고_slides.png" download="릴스11.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑫ · 3개월 전 분리수면 해도 돼요?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스12_분리수면_slides.png" download="릴스12.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑬ · 포스트잇 게임 (3세+ 꿀팁)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스13_포스트잇게임_slides.png" download="릴스13.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑭ · Q&A — 이사 후 혼자 못 자는 아이</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스14_QnA답변_slides.png" download="릴스14.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑮ · 두돌 아기 분리수면 지금 시작해도 될까요?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스15_두돌분리수면_slides.png" download="릴스15.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑯ · 눕히면 우는 신생아, 어떻게 해요?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스16_눕히면우는아기_slides.png" download="릴스16.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑰ · 출산가방 드디어 쌌어요 (남편이랑 같이 😂)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스17_출산가방_slides.png" download="릴스17.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#4A2A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">릴스 ⑱ · 성남시 백일해 무료 맞은 후기</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="릴스18_백일해_slides.png" download="릴스18.png">슬라이드 전체</a>
+        </div>
+      </div>
+
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#2A4A3A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">🌙 홍보 릴스 · 무료 아기 수면 상담 신청받아요</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="v3_s1.png" download="홍보릴스_01.png">01 후킹</a>
+          <a class="dl-btn" href="v3_s2.png" download="홍보릴스_02.png">02 이런분께</a>
+          <a class="dl-btn" href="v3_s3.png" download="홍보릴스_03.png">03 제공내용</a>
+          <a class="dl-btn" href="v3_s4.png" download="홍보릴스_04.png">04 소개</a>
+          <a class="dl-btn" href="v3_s5.png" download="홍보릴스_05.png">05 신청방법</a>
+          <a class="dl-btn" href="v3_s6.png" download="홍보릴스_06.png">06 CTA</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 인포그래픽 -->
+  <div class="dl-section">
+    <div class="dl-section-title">📊 인포그래픽 (3개)</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#3A4A2A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">인포 ① · 수면 교육 골든타임 총정리</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="인포그래픽_골든타임.png" download="인포1_골든타임.png">다운로드</a>
+        </div>
+      </div>
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#3A4A2A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">인포 ② · 개월수별 수면 시간표 총정리</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="인포그래픽_수면시간표.png" download="인포2_수면시간표.png">다운로드</a>
+        </div>
+      </div>
+      <div style="background:#F8F5F0;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+        <div style="background:#3A4A2A;color:#fff;font-size:10px;font-weight:800;padding:8px 14px;letter-spacing:1px;">인포 ③ · 너무 일찍 깨는 아기 해결법</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;">
+          <a class="dl-btn" href="인포그래픽_이른기상.png" download="인포3_이른기상.png">다운로드</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====== 캘린더 탭 ====== -->
+<div class="pane" id="p-calendar">
+  <div class="sec"><div class="sec-left">업로드 캘린더 <span class="bge">6주 플랜</span></div></div>
+  <table class="ctable">
+    <thead><tr><th>날짜</th><th>콘텐츠</th><th>형식</th><th>상태</th></tr></thead>
+    <tbody id="cal-body"></tbody>
+  </table>
+</div>
+
+<!-- ====== 결정사항 탭 ====== -->
+<div class="pane" id="p-decisions">
+  <div class="sec"><div class="sec-left">주요 결정사항</div></div>
+  <div class="dgrid">
+    <div class="ditem"><div class="dkey">현재 계정명</div><div class="dval">@mom.sleep.lab</div></div>
+    <div class="ditem"><div class="dkey">개월수 표현</div><div class="dval">월령별 ❌ → 개월수별 ✅</div></div>
+    <div class="ditem"><div class="dkey">drowsy but awake</div><div class="dval">→ 차분하지만 깨어있을 때</div></div>
+    <div class="ditem"><div class="dkey">공갈젖꼭지 입장</div><div class="dval">피드: 중립 / 마지막카드: "저는 안 써볼 예정"</div></div>
+    <div class="ditem"><div class="dkey">PDF 판매가</div><div class="dval">5,900원 (얼리버드 4,900원)</div></div>
+    <div class="ditem"><div class="dkey">취침 시간</div><div class="dval">0~3개월: 8~9시 / 4~12개월: 6:30~8시</div></div>
+    <div class="ditem"><div class="dkey">상담 요금</div><div class="dval">계획서10만 / 카톡1주15만 / 카톡2주⭐25만 / 전화8만</div></div>
+    <div class="ditem"><div class="dkey">가족 구성</div><div class="dval">출산 후 엄마 복직 / 아빠 육아휴직</div></div>
+    <div class="ditem"><div class="dkey">카드 계정명</div><div class="dval">카드 이미지 제거 (캡션에만 포함)</div></div>
+    <div class="ditem"><div class="dkey">먹수잠</div><div class="dval">수유하다 잠드는 습관 — 처음 등장 시 정의 추가</div></div>
+  </div>
+  <div class="sec" style="margin-top:20px"><div class="sec-left">업데이트 로그</div></div>
+  <div class="log"><div class="ld">4/16</div><div>콘텐츠 마스터 완전판 생성 — 전체 캡션 + 다운로드 기능 추가</div></div>
+  <div class="log"><div class="ld">4/16</div><div>피드①~㉒ 전체 캡션 완성</div></div>
+  <div class="log"><div class="ld">4/16</div><div>릴스①~⑮ 전체 캡션 완성</div></div>
+  <div class="log"><div class="ld">4/16</div><div>계정명 @mom.sleep.lab 반영</div></div>
+  <div class="log"><div class="ld">4/17</div><div>피드㉓ 눕히면우는신생아 / 릴스⑯ 신규 제작 + 캡션 완성</div></div>
+  <div class="log"><div class="ld">4/17</div><div>피드㉔ 출산가방체크리스트 7장 / 릴스⑰ 신규 제작 + 캡션 완성 (분당제일여성병원 기준 반영)</div></div>
+  <div class="log"><div class="ld">4/17</div><div>피드㉕ 성남시백일해무료접종 / 릴스⑱ 신규 제작 + 캡션 완성</div></div>
+  <div class="log"><div class="ld">4/17</div><div>전체 피드 25개 / 릴스 18개로 업데이트</div></div>
+  <div class="log"><div class="ld">4/16</div><div>피드⑦ 취침시간 수정 / 피드⑪ 공갈젖꼭지 개인의견 추가</div></div>
+</div>
+
+<button class="savebtn" onclick="doSave()">💾 저장하기</button>
+<div class="toast" id="toast">✅ 저장됐어요!</div>
+
+<script>
+const FEEDS=[
+  {id:'f1',num:'FEED ①',title:'0~2개월 아기 수면 가이드',sub:'낮밤혼동·수면시간표·마녀의시간·취침루틴',tags:'#신생아수면 #0개월아기 #낮밤혼동 #마녀의시간',
+  cap:`🍼 0~2개월 아기 수면, 이것만 알면 달라요
+
+저 임신 31주 예비엄마인데요, 이 시기 공부하면서 제일 충격받았어요.
+
+신생아는 멜라토닌이 거의 없어서 낮밤 구분 자체가 안 돼요.
+서카디안 리듬이 생후 3개월은 돼야 생기거든요.
+
+그래서 이 시기엔 수면 교육보다 준비가 먼저예요.
+✓ 낮엔 밝고 시끌시끌하게
+✓ 밤엔 어둡고 조용하게
+✓ 취침 루틴 15분 시작하기
+
+슬라이드 넘겨서 개월수별 수면 시간표 확인해보세요 →
+저장해두고 꺼내보세요 🔖
+
+#신생아수면 #0개월아기 #낮밤혼동 #마녀의시간 #수면교육 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'f2',num:'FEED ②',title:'3~6개월 아기 수면 가이드',sub:'밤새자기·낮잠전환·수면시간표·먹수잠',tags:'#3개월아기 #4개월아기 #수면교육골든타임 #먹수잠',
+  cap:`🌱 3~6개월, 수면 교육 골든타임이에요
+
+저 임신 31주 예비엄마인데요, 이 시기 공부하면서 제일 중요하다 싶었어요.
+
+4개월이 되면 아기 뇌가 성인과 비슷한 수면 구조로 영구적으로 바뀌어요.
+이때 수면 습관을 잡으면 훨씬 효과적이에요.
+
+그리고 낮잠도 이 시기에 4회→3회로 줄어요.
+스케줄이 흔들리면 밤잠까지 영향받거든요.
+
+슬라이드에서 개월수별 수면 시간표 확인해보세요 →
+저장해두고 꺼내보세요 🔖
+
+#3개월아기 #4개월아기 #6개월아기 #수면교육골든타임 #먹수잠 #수면교육 #mom_sleep_lab`},
+
+  {id:'f3',num:'FEED ③',title:'7~9개월 아기 수면 가이드',sub:'수면퇴행·분리불안·낮잠전환',tags:'#7개월아기 #8개월아기 #분리불안 #수면퇴행',
+  cap:`🌙 7~9개월, 드디어 통잠 될 것 같았는데 갑자기 또 자주 깨요?
+
+저 임신 31주 예비엄마인데요, 이 개월수 공부하면서 제일 많이 놀랐어요.
+
+이 시기에 갑자기 수면이 나빠지는 데는 이유가 있어요.
+
+대상 영속성이 생기면서 "엄마가 없어도 어딘가 있다"는 걸 알게 돼요.
+그러니까 눈에 안 보이면 더 찾고, 더 울고, 더 깨요. 이게 분리 불안이에요.
+
+퇴행처럼 느껴지지만 사실 발달이에요 🧠
+당황하지 말고 루틴 유지하는 게 핵심이에요.
+
+자세한 내용은 슬라이드 넘겨보세요 →
+저장해두면 나중에 딱 이 시기에 꺼내볼 수 있어요 🔖
+
+#7개월아기 #8개월아기 #9개월아기 #분리불안 #수면퇴행 #낮잠전환 #mom_sleep_lab`},
+
+  {id:'f4',num:'FEED ④',title:'재워놓으면 금방 깨요 (수면연관물)',sub:'수면연관물·먹수잠·독립수면',tags:'#수면연관물 #재워놓으면깨요 #먹수잠 #독립수면',
+  cap:`😩 재워놓으면 꼭 30~40분 만에 깨요
+
+원인은 딱 하나예요. 수면 연관물이에요.
+
+아기가 잠들 때 있던 것들 — 수유, 안아주기, 흔들기, 공갈젖꼭지 —
+수면 사이클이 바뀔 때마다 그게 또 필요한 거예요.
+
+어른도 자다가 살짝 깨잖아요. 근데 어른은 다시 혼자 잠들어요.
+아기는 처음 잠들 때 있던 게 없어지면 완전히 깨서 울어요.
+
+아기 잘못도, 부모 잘못도 아니에요 🤍
+
+해결법은 슬라이드에 있어요 →
+저장해두고 꺼내보세요 🔖
+
+#수면연관물 #재워놓으면깨요 #아기수면 #30분낮잠 #먹수잠 #수면교육 #독립수면 #mom_sleep_lab`},
+
+  {id:'f5',num:'FEED ⑤',title:'수면 교육 골든타임 개월수별 정리',sub:'개월수별타임라인·이르면vs늦으면·체크리스트',tags:'#수면교육골든타임 #개월수별수면 #4개월수면',
+  cap:`⏰ "수면 교육 언제 시작해요?" 제일 많이 받는 질문이에요!
+
+너무 빨라도 안 되고 너무 늦어도 안 돼요.
+개월수별로 딱 맞는 타이밍이 있어요.
+
+4~6개월이 골든타임인 이유가 있어요.
+이 시기가 습관이 굳기 전,
+아기가 새로운 방식에 적응하기 제일 쉬운 때거든요.
+
+"우리 애는 이미 8개월인데 늦은 거 아닌가요?"
+아니에요! 지금 시작해도 충분히 달라져요 🤍
+
+개월수별 시작 시기 + 준비 체크리스트까지 슬라이드에 정리했어요 →
+저장해두고 꺼내보세요 🔖
+
+#수면교육골든타임 #수면교육시작 #개월수별수면 #4개월수면 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'f6',num:'FEED ⑥',title:'자격증 공부 이야기 (리메이크)',sub:'자기소개·뉴질랜드·자격증계기·예비엄마',tags:'#수면컨설턴트 #미국수면자격증 #IPSP #뉴질랜드유학',
+  cap:`🇳🇿 오늘은 제 이야기를 해볼게요.
+
+뉴질랜드에서 의생명과학을 전공했어요.
+공부하면서 뇌과학도 배웠고 수면도 그때 처음 알게 됐어요.
+
+근데 자격증을 따게 된 건 사실 전공 때문이 아니었어요 😅
+
+먼저 아기 낳은 친구가 이런 말을 했거든요.
+"야, 너 영어 되고 바이오 전공이잖아.
+미국 수면 자격증 한번 따봐!"
+
+그 말에 찾아봤더니 진짜로 있는 거예요 😳
+
+공부하다 보니 "이걸 나만 알기 너무 아깝다" 싶었어요.
+그게 이 계정의 시작이에요 🤍
+
+슬라이드 넘겨서 자세한 이야기 봐주세요 →
+
+#수면컨설턴트 #미국수면자격증 #IPSP #뉴질랜드유학 #의생명과학 #뇌과학 #예비엄마 #워킹맘 #mom_sleep_lab`},
+
+  {id:'f7',num:'FEED ⑦',title:'취침 루틴 연령별 비교',sub:'0~2개월·3~6개월·7~12개월·공통원칙',tags:'#취침루틴 #bedtimeroutine #아기수면 #수면교육',
+  cap:`🌙 취침 루틴, 개월수마다 다르다는 거 알고 계셨나요?
+
+저 임신 32주 예비엄마인데요,
+이거 공부하면서 제일 실용적이다 싶었어요.
+
+핵심은 딱 하나예요. 매일 같은 순서로 15분.
+
+아기는 반복에서 안정감을 찾거든요.
+"이 순서 시작되면 이제 잘 시간이다"를 학습하는 거예요.
+
+공통적으로 제일 중요한 건
+수유를 루틴 맨 앞에서 끝내는 것 ✅
+차분하지만 깨어있을 때 눕히는 것 ✅
+
+슬라이드 넘겨서 개월수별 루틴 확인해보세요 →
+저장해두면 딱 그 시기에 꺼내볼 수 있어요 🔖
+
+취침시간: 0~3개월 8~9시 / 4~12개월 6:30~8시
+
+#취침루틴 #bedtimeroutine #아기수면 #수면교육 #개월수별수면 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'f8',num:'FEED ⑧',title:'수면 교육 Q&A',sub:'자주묻는질문·오해vs사실·실제케이스',tags:'#수면교육QA #수면교육 #아기수면',
+  cap:`💬 제일 많이 받는 질문 다 모았어요!
+
+"수면 교육은 몇 개월부터요?"
+"꼭 울려야 하나요?"
+"얼마나 걸려요?"
+
+저 임신 32주 예비엄마인데요,
+공부하면서 가장 많이 찾아본 질문들이에요.
+
+늦은 거 없어요. 지금 시작하면 돼요.
+꼭 울려야 하는 건 아니에요.
+일관성만 지키면 1~2주 안에 달라져요 🤍
+
+슬라이드에서 전부 정리했어요 →
+저장해두고 꺼내보세요 🔖
+
+#수면교육QA #수면교육시작 #아기수면 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'f9',num:'FEED ⑨',title:'0~3개월 수면 준비 가이드',sub:'왜교육못하나·지금할수있는것·마녀의시간',tags:'#신생아수면 #0~3개월 #마녀의시간 #수면준비',
+  cap:`🍼 수면 교육 아직 이른데 뭘 해요?
+
+저 임신 32주 예비엄마인데요,
+이 시기 공부하면서 "지금 이 시기가 나중을 결정하는구나" 싶었어요.
+
+교육은 아직 이르지만 준비는 할 수 있어요.
+
+✓ 낮밤 구분 시작하기
+✓ 취침 루틴 15분 연습
+✓ 개월수에 맞는 깨어있는 시간 지키기
+✓ 차분하지만 깨어있을 때 눕히기 연습
+
+그리고 마녀의 시간 — 저녁 5시~밤 10시 이유 없이 우는 시기예요.
+과학적으로도 원인이 명확하지 않지만
+생후 3개월이면 반드시 사라져요 🤍
+
+슬라이드에서 자세히 확인해보세요 →
+
+#신생아수면 #0~3개월 #마녀의시간 #수면준비 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'f10',num:'FEED ⑩',title:'속싸개 완벽 가이드',sub:'왜하나·올바른방법·그만할때·자주하는실수',tags:'#속싸개 #swaddle #모로반사 #신생아',
+  cap:`🧸 속싸개, 언제까지 해야 하고 언제 그만해야 할까요?
+
+저 임신 32주 예비엄마인데요,
+이거 잘못 알면 아기 고관절에 영향 줄 수 있다는 걸 공부하면서 알았어요.
+
+핵심 3가지예요.
+
+모로 반사 억제 → 더 오래 잠든다
+엉덩이·다리는 느슨하게 — 고관절 보호
+뒤집기 시작하면 즉시 중단 — 수면 조끼로 전환
+
+엉덩이랑 다리는 자유롭게 움직일 수 있어야 해요.
+꽉 싸면 고관절 이형성증 위험이 있어요 ⚠️
+
+슬라이드에서 올바른 방법 확인해보세요 →
+저장해두고 꺼내보세요 🔖
+
+#속싸개 #swaddle #모로반사 #신생아 #수면교육 #mom_sleep_lab`},
+
+  {id:'f11',num:'FEED ⑪',title:'공갈젖꼭지 총정리 (개인의견포함)',sub:'장점·문제될때·의존도줄이기·떼는법',tags:'#공갈젖꼭지 #pacifier #수면연관물',
+  cap:`🍬 공갈젖꼭지 써도 돼요? 솔직하게 정리해봤어요
+
+장점, 주의사항, 수면 방해될 때 떼는 법까지 다 알려드려요.
+
+빠져도 안 깨면 써도 돼요 — 문제없어요
+밤에 자꾸 물려줘야 한다면 — 의존도 줄이기 시작
+뗄 때는 18~24개월, 한 번에 끊기가 제일 빠르다
+
+슬라이드 넘겨보세요 →
+
+💬 참고로 저는 우리 아기한테는 처음부터 안 써볼 예정이에요.
+예비엄마로서 제 선택이고, 맞고 틀린 건 없어요.
+각 가정에 맞는 방법이 제일 좋은 방법이에요 🤍
+
+#공갈젖꼭지 #pacifier #아기수면 #수면연관물 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'f12',num:'FEED ⑫',title:'돌 전후 수면 가이드 (10~14개월)',sub:'왜흔들리나·12개월퇴행·낮잠전환·수면시간표',tags:'#돌아기 #12개월아기 #12개월수면퇴행 #낮잠전환',
+  cap:`🌙 잘 자던 아기가 돌 되니까 갑자기 또 자주 깨요?
+
+저 임신 32주 예비엄마인데요,
+이 시기 공부하면서 "아 이게 또 있구나" 싶었어요 😅
+
+돌 전후에 수면이 흔들리는 건 이유가 있어요.
+
+걷기 준비하면서 뇌가 폭발적으로 발달하고,
+분리 불안이 최고조로 심해지고,
+낮잠도 2회에서 1회로 전환되는 불안정한 시기거든요.
+
+퇴행처럼 느껴지지만 사실 전부 성장이에요 🌱
+
+힘들어도 기존 루틴 유지가 제일 중요해요.
+보통 2~6주 안에 지나가요. 이 시기가 영원하지 않아요 🤍
+
+자세한 내용은 슬라이드 넘겨보세요 →
+저장해두면 딱 이 시기에 꺼내볼 수 있어요 🔖
+
+#돌아기 #12개월아기 #12개월수면퇴행 #낮잠전환 #분리불안 #mom_sleep_lab`},
+
+  {id:'f13',num:'FEED ⑬',title:'백색소음 완벽 가이드',sub:'왜쓰나·종류·볼륨사용법·끊어도되나',tags:'#백색소음 #whitenoise #아기수면 #수면환경',
+  cap:`🔊 백색소음 써야 해요? 볼륨은 얼마나? 언제까지?
+
+헷갈리는 것 다 정리해드릴게요.
+
+백색소음은 필수는 아니지만 쓰면 분명히 도움이 돼요.
+외부 소음 차단 + 수면 신호로 학습되거든요.
+
+중요한 건 볼륨이에요.
+50~65dB, 침대에서 1~2m 거리에 두세요.
+너무 크면 청력에 영향 줄 수 있어요 ⚠️
+
+끊고 싶으면 서서히 줄여가면 돼요.
+계속 써도 전혀 문제없어요 😊
+
+슬라이드에서 종류별 차이도 확인해보세요 →
+저장해두고 꺼내보세요 🔖
+
+#백색소음 #whitenoise #아기수면 #수면환경 #신생아수면 #수면교육 #mom_sleep_lab`},
+
+  {id:'f14',num:'FEED ⑭',title:'아기 수면 환경 이렇게 하세요',sub:'암막·온도·습도·안전한수면환경',tags:'#아기수면환경 #아기방세팅 #암막커튼 #백색소음',
+  cap:`🛏️ 아기 수면 환경, 이것만 바꿔도 진짜 달라져요
+
+저 임신 32주 예비엄마인데요,
+아기방 세팅하면서 공부한 것들 정리했어요.
+
+사실 수면 교육보다 환경이 먼저예요.
+아무리 잘 재워도 환경이 안 되면 수면 사이클마다 깨거든요.
+
+핵심은 딱 4가지예요.
+🌑 암막 — 손이 안 보일 정도로 어둡게
+🌡️ 온도 — 18~22도, 서늘하게
+💧 습도 — 40~60%
+🔊 백색소음 — 50에서 65dB
+
+슬라이드 넘기면 안전한 수면 환경 체크리스트도 있어요 →
+저장해두고 아기방 꾸밀 때 꺼내보세요 🔖
+
+#아기수면환경 #아기방세팅 #암막커튼 #백색소음 #신생아방 #육아준비 #mom_sleep_lab`},
+
+  {id:'f15',num:'FEED ⑮',title:'이른 기상 해결법',sub:'원인·해결법·주의사항',tags:'#이른기상 #새벽기상 #아기수면 #수면교육',
+  cap:`🌅 새벽 5시에 일어나는 아기, 해결법이 있어요
+
+이른 기상은 수면 문제 중에 고치기 제일 어렵다고 해요.
+근데 원인을 알면 달라져요.
+
+주요 원인 4가지예요.
+1. 커튼 틈으로 들어오는 아침 빛
+2. 오후 낮잠이 너무 길었음
+3. 취침 시간이 너무 일렀음
+4. 새벽에 혼자 다시 잠들지 못함
+
+지금 당장 해볼 수 있는 것부터 하나씩 바꿔보세요.
+한꺼번에 다 바꾸면 원인을 모르게 돼요!
+
+슬라이드에서 원인별 해결법 확인해보세요 →
+저장해두고 꺼내보세요 🔖
+
+⚠️ 6시 이후 기상은 이른 기상이 아니에요 — 정상이에요!
+
+#이른기상 #새벽기상 #아기수면 #수면교육 #암막커튼 #백색소음 #mom_sleep_lab`},
+
+  {id:'f16',num:'FEED ⑯',title:'낮잠 30분에 끝나는 이유',sub:'이유·해결법·6개월전정상',tags:'#낮잠30분 #토막잠 #아기낮잠 #수면교육',
+  cap:`😭 재워놓으면 꼭 30분 만에 깨요
+
+이것도 이유가 있어요.
+
+아기 수면 사이클이 30~45분이에요.
+사이클이 끝나면 잠깐 깨는 게 정상이에요.
+이때 혼자 다시 잠들 수 있으면 → 낮잠 연장
+못 다시 잠들면 → 30분 토막잠으로 끝나는 거예요.
+
+결국 독립 수면이 안 되면 낮잠도 짧아요.
+
+밤잠 독립 수면이 먼저 되면 낮잠도 같이 길어지는 경우가 많아요!
+
+6개월 전은 정상 범위예요.
+6개월 이후에도 계속 30분이라면 수면 연관물 확인해보세요.
+
+슬라이드에서 낮잠 연장하는 방법 확인해보세요 →
+저장해두고 꺼내보세요 🔖
+
+#낮잠30분 #토막잠 #아기낮잠 #수면교육 #독립수면 #수면연관물 #mom_sleep_lab`},
+
+  {id:'f17',num:'FEED ⑰',title:'성장 급등기 수면 대처',sub:'시기·증상·대처법',tags:'#성장급등기 #growthspurt #아기수면',
+  cap:`🌱 잘 자던 아기가 갑자기 수유량이 늘고 보채요?
+
+성장 급등기예요!
+
+1~2주 / 3~4주 / 6~8주 / 3·6·9·12개월에 와요.
+
+이 시기엔 수유량이 갑자기 늘고,
+평소보다 훨씬 보채고, 잘 자던 아기도 자주 깨요.
+보통 3~7일 안에 지나가요.
+
+이때 제일 중요한 건 루틴 유지예요.
+새로운 수면 연관물을 만들지 않는 게 핵심이에요.
+
+수유량은 늘려도 되지만
+안아서 재우기 시작하면 나중에 끊기 더 힘들어요 ⚠️
+
+슬라이드에서 시기별 정리 확인해보세요 →
+저장해두고 꺼내보세요 🔖
+
+#성장급등기 #growthspurt #아기수면 #수면교육 #신생아수면 #mom_sleep_lab`},
+
+  {id:'f18',num:'FEED ⑱',title:'쌍둥이 수면 교육',sub:'같이재워도되나·스케줄동기화·혼자할때',tags:'#쌍둥이 #쌍둥이수면 #쌍둥이육아 #수면교육',
+  cap:`👶👶 쌍둥이 수면 교육 가능할까요?
+
+두 배로 힘들지만 두 배로 보람 있어요!
+
+쌍둥이 수면 교육 핵심 3가지예요.
+
+같은 방 O, 같은 침대 X
+한 명이 울어도 다른 쪽이 생각보다 안 깨요.
+백색소음이 서로 소리 차단에 도움돼요.
+
+스케줄 동기화가 핵심이에요.
+동시에 재우고, 동시에 먹이고!
+처음엔 힘들지만 스케줄 맞으면 훨씬 수월해요.
+
+독립 수면이 더 중요해요.
+혼자 재울 수밖에 없는 상황이 반드시 생기거든요.
+
+슬라이드에서 혼자 쌍둥이 재우는 팁도 확인해보세요 →
+
+#쌍둥이 #쌍둥이수면 #쌍둥이육아 #수면교육 #독립수면 #mom_sleep_lab`},
+
+  {id:'f19',num:'FEED ⑲',title:'분리수면 언제부터 가능해요?',sub:'AAP권고·3개월전·바로옆방·타임라인',tags:'#분리수면 #독립수면 #SIDS #수면교육',
+  cap:`🛏️ "3개월 전에 분리수면 해도 되나요?" 많이 받는 질문이에요!
+
+결론부터 말씀드릴게요.
+
+다른 방에 혼자 재우는 건 6개월까지는 권장하지 않아요.
+
+미국소아과학회(AAP) 기준으로
+최소 6개월까지는 같은 방 다른 침대가 권장이에요.
+SIDS(영아 돌연사) 위험 때문이에요.
+특히 생후 1~4개월이 제일 위험한 시기예요.
+
+바로 옆방은요?
+4개월 이후 + 베이비 모니터 필수 조건으로
+많은 분들이 선택하는 방법이에요.
+단, 소아과 선생님과 상담 후 결정해요.
+
+그리고 기억해주세요.
+분리수면 전에 독립 수면이 먼저예요 🌙
+
+저장해두고 시기 되면 꺼내보세요 🔖
+
+#분리수면 #신생아수면 #아기수면 #SIDS #독립수면 #수면교육 #예비엄마 #mom_sleep_lab`},
+
+  {id:'f20',num:'FEED ⑳',title:'분리수면을 왜 하는 건가요?',sub:'정의·왜하나·올바른순서·꼭해야하나',tags:'#분리수면 #독립수면 #워킹맘 #통잠 #수면교육',
+  cap:`🛏️ "분리수면 꼭 해야 하나요?" 많이 받는 질문이에요!
+
+저 임신 32주 예비엄마인데요,
+사실 저도 처음엔 왜 하는지 몰랐어요 😅
+
+먼저 분리수면의 핵심은
+공간 분리가 아니에요.
+아기가 스스로 잠드는 힘,
+독립 수면이 먼저예요.
+
+독립 수면이 되면
+밤에 수면 사이클 바뀔 때마다
+혼자 다시 잠들 수 있어요.
+그게 통잠의 비결이에요 🌙
+
+그리고 저한테 제일 현실적인 이유는요.
+저 출산 후 바로 복직해요.
+아기가 독립 수면이 안 되면
+남편이 밤새 안고 있어야 해요 😂
+
+꼭 해야 하는 건 아니에요.
+근데 이유를 알면 선택이 쉬워져요 🤍
+
+슬라이드 넘겨서 순서랑 시기 확인해보세요 →
+
+#분리수면 #독립수면 #아기수면 #수면교육 #통잠 #워킹맘 #복직준비 #mom_sleep_lab`},
+
+  {id:'f21',num:'FEED ㉑',title:'잘 자던 아이가 갑자기 혼자 못 잔대요 (3세+)',sub:'왜그런가·무서움완화·포스트잇게임·형제있을때',tags:'#3세수면 #포스트잇게임 #분리수면재훈련 #육아',
+  cap:`😭 잘 자던 아이가 갑자기 혼자 못 잔다고 해요
+
+이사, 여행, 임시 거주로 같이 자는 습관이 생겼다면
+충분히 되돌릴 수 있어요!
+
+원인이 명확할수록 해결이 빨라요.
+
+무서움부터 줄여주세요.
+→ 빨간 미등 하나 두기 (멜라토닌 영향 없어요)
+→ "지켜주는 인형" 지정하기
+→ "무서운 거 없어"는 금지! 공감이 먼저예요
+
+포스트잇 게임 써보세요 ⭐ (3~7세 효과 최고)
+→ 방문에 포스트잇 3장 = 엄마 부르기 티켓
+→ 다 쓰면 끝 / 안 쓰면 보상!
+
+3~5일만 일관성 유지하면 달라져요.
+새벽에 와도 안방에서 재우지 말고 다시 데려다 재우기!
+
+슬라이드에서 자세히 확인해보세요 →
+
+#3세수면 #포스트잇게임 #분리수면재훈련 #육아팁 #수면교육 #mom_sleep_lab`},
+
+  {id:'f22',num:'FEED ㉒',title:'두돌 아기 분리수면 시작 가이드',sub:'두돌특징·시작전준비·단계별·한계시험',tags:'#두돌분리수면 #분리수면 #두돌육아 #24개월 #독립수면',
+  cap:`🛏️ 두돌인데 분리수면 시작해도 될까요?
+
+결론부터 말씀드릴게요. 늦지 않았어요. 오히려 지금이 좋아요 😊
+
+두돌은 "왜 자야 해?"가 통하는 시기예요.
+설명이 되고, 보상에 반응하고,
+게임처럼 재밌게 할 수 있어요.
+영아기보다 오히려 수월할 수 있어요.
+
+시작 전에 이것부터 해주세요.
+→ 며칠 전부터 미리 설명: "이제 자기 방에서 자는 거야, 멋지지?"
+→ 빨간 미등 + 지켜주는 인형 준비
+→ 아이가 직접 고른 이불·베개로 꾸미기
+→ 15분 취침 루틴 완성
+
+그다음 단계별로 분리해요.
+처음엔 옆에서 재우고 간격을 서서히 늘려가요.
+1~2주면 혼자 잠들 수 있어요.
+
+"물 줘, 뽀뽀 한 번 더" 끝없이 부를 땐
+포스트잇 게임이 진짜 효과 있어요 📝
+
+지금 두돌 분리수면 고민 중이라면
+저장해두고 시작할 때 꺼내보세요 🔖
+
+#두돌분리수면 #분리수면 #두돌육아 #24개월 #독립수면 #수면교육 #mom_sleep_lab`},
+];
+
+const REELS=[
+  {id:'r1',num:'릴스 ①',title:'자기소개 소개 릴스',sub:'예비엄마·뉴질랜드·자격증·계정소개',tags:'#수면컨설턴트 #예비엄마 #워킹맘 #아기수면',
+  cap:`🇳🇿 예비엄마인데 미국 수면 교육 자격증을 먼저 땄어요
+
+저 임신 31주예요 😅
+아기도 아직 안 태어났는데 수면 교육 자격증부터 딴 사람이에요.
+
+출산 후 바로 복직 예정인 워킹맘이라
+아기 수면만큼은 제대로 준비하고 싶었거든요.
+
+그리고 저희 집은 좀 특이한 구조예요.
+수면 교육은 제가, 육아휴직은 남편이 할 예정이에요 😂
+
+뉴질랜드에서 바이오메디컬 공부하면서
+뇌과학도 배웠는데
+그게 수면 교육이랑 이렇게 연결될 줄은 몰랐어요 🧠
+
+공부하다 보니 "이거 나만 알기 아깝다" 싶어서
+이 계정 시작했어요.
+
+아기 수면으로 고민이라면 팔로우 해두세요 🍼
+곧 태어날 우리 아기와 함께 실전 시작합니다!
+
+#수면컨설턴트 #예비엄마 #워킹맘 #아기수면 #수면교육 #뉴질랜드유학 #바이오메디컬 #아빠육아휴직 #IPSP #미국수면자격증 #mom_sleep_lab`},
+
+  {id:'r2',num:'릴스 ②',title:'신생아 부모 실수 TOP 5',sub:'낮잠너무재움·자다깨움·수면연관물',tags:'#신생아 #신생아육아 #수면실수 #예비엄마',
+  cap:`😱 신생아 부모가 가장 많이 하는 실수 5가지예요
+
+저 임신 32주 예비엄마인데요,
+공부하면서 "나도 이렇게 할 뻔했다!" 싶었어요.
+
+❌ 실수 1 — 낮잠을 너무 길게 재우기
+밤잠을 낮에 다 써버리는 거예요.
+
+❌ 실수 2 — 완전히 잠든 후 눕히기
+차분하지만 깨어있을 때 눕히는 연습이 필요해요.
+
+❌ 실수 3 — 수면 연관물 만들기
+먹수잠, 흔들어재우기 — 나중에 끊기 더 힘들어요.
+
+❌ 실수 4 — 울 때마다 바로 달려가기
+3~5분 기다리면 스스로 다시 잠들 기회가 생겨요.
+
+❌ 실수 5 — 낮밤 구분 안 하기
+낮엔 밝고 시끄럽게, 밤엔 어둡고 조용하게!
+
+저장해두고 나중에 꺼내보세요 🔖
+
+#신생아 #신생아육아 #수면실수 #수면연관물 #먹수잠 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'r3',num:'릴스 ③',title:'낮잠 5시간 넘기면 밤에 못 자요',sub:'낮잠시간제한·개월수별낮잠·밤잠방해',tags:'#낮잠 #낮잠시간 #아기수면 #통잠 #수면교육',
+  cap:`😳 낮잠을 많이 재웠더니 밤에 더 못 자요
+
+당연히 낮에 많이 자면 밤에 잘 것 같잖아요.
+근데 정반대예요.
+
+낮잠이 밤잠을 훔쳐가는 거예요.
+
+하루 총 낮잠 5시간 넘기면 밤에 못 자고
+1회당 2시간 넘으면 바로 밤잠 방해 시작이에요.
+
+지금 당장 확인해보세요 👇
+오늘 낮잠 총 몇 시간이었어요?
+
+이것만 바꿔도 밤이 달라지기 시작해요.
+개월수별 정확한 낮잠 시간은 프로필 피드에 있어요 🔖
+
+#낮잠 #낮잠시간 #아기수면 #통잠 #수면교육 #신생아수면 #아기낮잠 #밤잠 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'r4',num:'릴스 ④',title:'마녀의 시간 대처법',sub:'마녀의시간정의·원인·대처법',tags:'#마녀의시간 #witchinghour #신생아육아 #저녁육아',
+  cap:`🧙 저녁만 되면 이유 없이 우는 아기, 혹시 경험하셨나요?
+
+이걸 "마녀의 시간"이라고 불러요.
+이름부터 뭔가 불길하죠 😂
+
+저녁 5시~밤 10시 사이
+아무 이유 없이 울고 달래도 안 돼요.
+
+충격적인 건요.
+원인이 과학적으로도 아직 명확하지 않아요.
+뇌과학 배운 저도 몰랐어요 😳
+
+근데 대처법은 있어요.
+🪀 흑백 장난감
+🚶 산책
+🛁 따뜻한 목욕
+🔊 백색소음
+🤱 몰아 먹이기
+
+그리고 제일 중요한 것 하나.
+
+생후 3개월이면 반드시 사라져요.
+진짜로요. 꼭이요. 😂
+
+지금 마녀의 시간 겪고 계신 분
+조금만 버텨요 🤍
+
+#마녀의시간 #witchinghour #신생아육아 #저녁육아 #신생아울음 #백색소음 #아기달래기 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'r5',num:'릴스 ⑤',title:'수면 교육은 내가, 육아휴직은 남편이',sub:'부부이야기·복직예정·남편육아휴직',tags:'#워킹맘 #아빠육아휴직 #수면교육 #예비엄마',
+  cap:`🍼 저희 집 육아 분담 공개해요 😂
+
+저는 출산 후 바로 복직 예정인 워킹맘이에요.
+그리고 남편이 육아휴직을 쓸 거예요.
+
+그래서 수면 교육만큼은 제가 미리 다 공부해뒀어요.
+임신 중에 미국 수면 교육 자격증도 땄고요 😅
+
+남편이 낮에 아기를 돌봐야 하니까
+아기가 혼자 잠들 수 있는 독립 수면이 정말 중요해요.
+
+내가 없어도 아기가 잘 자야
+남편도 버티고, 아기도 잘 크고,
+나도 복직해서 일할 수 있거든요 🤍
+
+비슷한 상황이신 분 계신가요?
+댓글로 알려주세요 👋
+
+#워킹맘 #아빠육아휴직 #수면교육 #예비엄마 #독립수면 #복직준비 #mom_sleep_lab`},
+
+  {id:'r6',num:'릴스 ⑥',title:'4개월 수면 퇴행',sub:'퇴행아니라성장·뇌변화·골든타임',tags:'#4개월수면퇴행 #4개월아기 #수면퇴행 #골든타임',
+  cap:`😱 잘 자던 아기가 4개월에 갑자기 자주 깨요?
+
+퇴행이라고 부르는데요, 사실 퇴행이 아니에요.
+뇌가 성장하는 거예요 🧠
+
+4개월이 되면 아기 수면 구조가
+신생아 → 성인과 비슷한 구조로
+영구적으로 바뀌어요.
+
+렘수면·비렘수면 사이클이 생기면서
+사이클 사이에 깨는 횟수가 늘어나는 거예요.
+
+그래서 지금이 바로 수면 교육 골든타임이에요 ⭐
+수면 사이클이 막 바뀐 지금
+스스로 잠드는 법을 가르치면 훨씬 효과적이에요.
+
+지금 당장 해볼 것들 →
+✓ 먹수잠 끊기
+✓ 차분하지만 깨어있을 때 눕히기
+✓ 취침 루틴 시작
+✓ 낮잠 시간 조절
+
+퇴행이 아니라 성장이에요 🌱
+조금만 버텨요 🤍
+
+#4개월수면퇴행 #4개월아기 #수면퇴행 #수면교육골든타임 #골든타임 #수면교육 #렘수면 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'r7',num:'릴스 ⑦',title:'수면 교육 시작 전 체크리스트',sub:'준비체크·마음준비·지금바로시작',tags:'#수면교육체크리스트 #수면교육시작 #아기수면',
+  cap:`✅ 수면 교육 시작 전에 이거 됐나요?
+
+준비 체크리스트예요.
+✓ 최소 3개월 이상
+✓ 소아과 OK 확인
+✓ 아기 건강한 상태
+✓ 암막 커튼 준비
+✓ 백색소음 준비
+✓ 취침 루틴 계획 완성
+
+마음 준비 체크예요.
+✓ 1~2주 일관성 유지 결심
+✓ 파트너와 방법 합의
+✓ 처음엔 울 수 있음을 인지
+✓ 아픈 시기 피하기
+✓ 여행·일정 없는 1~2주 확보
+
+전부 됐다면? 지금 바로 시작해요 🌙
+
+도움이 필요하면 DM 주세요 🤍
+
+#수면교육체크리스트 #수면교육시작 #아기수면 #수면교육 #수면컨설턴트 #예비엄마 #mom_sleep_lab`},
+
+  {id:'r8',num:'릴스 ⑧',title:'이런 실수 하고 있지 않나요?',sub:'실수1~6·저장유도',tags:'#수면교육실수 #수면교육 #아기수면',
+  cap:`⚠️ 수면 교육 이 실수 하고 있지 않나요?
+
+❌ 완전히 잠든 후 눕히기
+→ 차분하지만 깨어있을 때 눕혀야 해요
+
+❌ 매번 다른 방법으로 재우기
+→ 일관성이 제일 중요해요
+
+❌ 낮잠은 달래고 밤만 교육하기
+→ 낮밤 동일하게 적용해야 해요
+
+❌ 3일 만에 포기하기
+→ 최소 1~2주는 유지해야 해요
+
+❌ 취침 시간이 매일 달라요
+→ 같은 시간대 유지가 핵심이에요
+
+❌ 낮잠을 너무 길게 재워요
+→ 밤잠을 낮에 써버리는 거예요
+
+실수해도 괜찮아요 🤍
+알고 나서 바꾸면 돼요.
+
+저장하고 하나씩 체크해보세요 🔖
+
+#수면교육실수 #수면교육 #아기수면 #수면연관물 #독립수면 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'r9',num:'릴스 ⑨',title:'아기방 세팅 가이드',sub:'빛세팅·온도습도·백색소음',tags:'#아기방세팅 #아기수면환경 #암막커튼 #백색소음',
+  cap:`🛏️ 수면에 최적화된 아기방 세팅법이에요
+
+아기방 세팅, 뭐부터 해야 할지 모르겠죠?
+
+사실 아기 수면에서 환경이 생각보다 엄청 중요해요.
+이것만 바꿔도 수면이 달라지거든요.
+
+🌑 빛 세팅
+✓ 암막 커튼 필수
+✓ 커튼 틈 암막 스티커로 막기
+✓ 야간등 없애기 (필요시 빨간빛)
+✓ 손이 안 보일 정도가 이상적
+
+🌡️ 온도·습도
+✓ 온도 18~22도
+✓ 습도 40~60%
+✓ 온습도계 구비 권장
+✓ 수면 조끼로 체온 조절
+
+🔊 소리
+✓ 백색소음 50에서 65dB
+✓ 침대에서 1~2m 거리
+✓ 자는 동안 내내 켜두기
+
+환경만 바꿔도 수면이 달라져요 🌿
+
+저장해두고 하나씩 세팅해요 🔖
+
+#아기방세팅 #아기수면환경 #암막커튼 #백색소음 #신생아방 #육아준비 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'r10',num:'릴스 ⑩',title:'이 계정 시작한 이유',sub:'워킹맘·뉴질랜드바이오메디컬·나만알기아깝다',tags:'#수면컨설턴트 #예비엄마 #워킹맘 #계정소개',
+  cap:`💡 임신 중에 이 계정을 시작한 이유예요
+
+저는 출산 후 바로 복직 예정인 워킹맘이에요.
+
+뉴질랜드에서 바이오메디컬을 공부하면서
+뇌과학도 배웠어요 🧠
+
+그게 수면 교육이랑 이렇게 연결될 줄은 몰랐어요 😳
+
+공부하다 보니
+"이걸 나만 알기 너무 아깝다" 싶었어요.
+
+같은 고민 하는 부모님들께
+나눠드리고 싶었어요 🤍
+
+앞으로 보여드릴 것들이에요.
+✓ 신생아 수면 실전 기록
+✓ 아빠 육아휴직 현실 후기
+✓ 수면 교육 시작 과정
+✓ 워킹맘 복직 준비기
+
+잘 될지 못 될지 솔직하게 다 보여드릴게요 😂
+수면 전문가도 처음엔 힘들 수 있거든요!
+
+같은 고민이라면 팔로우 해두세요 🤍
+
+#수면컨설턴트 #예비엄마 #워킹맘 #아기수면 #뉴질랜드유학 #바이오메디컬 #mom_sleep_lab`},
+
+  {id:'r11',num:'릴스 ⑪',title:'곧 출산 예고',sub:'임신중공부·실전시작·팔로우유도',tags:'#출산예고 #임신 #예비엄마 #수면교육',
+  cap:`🍼 드디어 실전이에요 🌙
+
+임신 중에 자격증 따고
+수면 교육 공부했는데
+이제 직접 해볼 차례예요 😅
+
+이론과 실전이 얼마나 다를지
+솔직하게 보여드릴게요.
+
+앞으로 보여드릴 것들이에요.
+✓ 신생아 수면 실전 기록
+✓ 아빠 육아휴직 현실 후기
+✓ 수면 교육 시작 과정
+✓ 워킹맘 복직 준비기
+
+잘 될지 못 될지
+솔직하게 다 보여드릴게요 😂
+수면 전문가도 처음엔 힘들 수 있거든요!
+
+함께 지켜봐 주세요 🤍
+팔로우 + 알림 설정 해두시면 놓치지 않아요 🔔
+
+#출산예고 #임신 #예비엄마 #수면교육 #워킹맘 #아기수면 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'r12',num:'릴스 ⑫',title:'3개월 전 분리수면 해도 돼요?',sub:'AAP권고·3개월전이유·바로옆방조건',tags:'#분리수면 #신생아수면 #아기수면 #SIDS #독립수면',
+  cap:`🛏️ "3개월 전에 분리수면 해도 되나요?" 많이 받는 질문이에요!
+
+결론부터 말씀드릴게요.
+
+다른 방에 혼자 재우는 건
+6개월까지는 권장하지 않아요.
+
+미국소아과학회(AAP) 기준으로
+최소 6개월까지는 같은 방 다른 침대가 권장이에요.
+SIDS(영아 돌연사) 위험 때문이에요.
+특히 생후 1~4개월이 제일 위험한 시기예요.
+
+근데 이건 가능해요 ✅
+같은 방 아기 전용 침대
+사이드카·바시넷 사용
+
+바로 옆방은요?
+4개월 이후 + 베이비 모니터 필수 조건으로
+많은 분들이 선택하는 방법이에요.
+단, 소아과 상담 후 결정해요.
+
+그리고 기억해주세요.
+분리수면 전에 독립 수면이 먼저예요 🌙
+
+저장해두고 시기 되면 꺼내보세요 🔖
+
+#분리수면 #신생아수면 #아기수면 #SIDS #독립수면 #수면교육 #mom_sleep_lab`},
+
+  {id:'r13',num:'릴스 ⑬',title:'포스트잇 게임 (3세+ 꿀팁)',sub:'방법소개·왜효과있나·무서움완화',tags:'#포스트잇게임 #3세수면 #분리수면재훈련 #육아팁',
+  cap:`📝 혼자 못 잔다는 아이한테 이거 해보세요!
+
+포스트잇 게임이에요. 3~7세에 효과 최고예요 ⭐
+
+방법은 간단해요.
+1. 방문에 포스트잇 3장
+2. "진짜 무서울 때만 쓰는 엄마 부르기 티켓"이라고 설명
+3. 부를 때마다 1장씩 제거
+4. 다 쓰면 더 이상 방에 안 들어가기
+5. 안 쓰면 → 다음날 아침 보상! 🌟
+
+왜 효과 있냐면요.
+아이가 스스로 통제하는 느낌을 받거든요.
+불안감이 줄어들면서 자연스럽게 혼자 잘 수 있어요 😊
+
+무서움도 같이 줄여주세요.
+🔴 빨간 미등 두기
+🧸 지켜주는 인형 지정
+💬 "무서운 느낌이 드는구나" 공감 먼저
+❌ "무서운 거 없어"는 역효과!
+
+3~5일만 버티면 달라져요 🤍
+새벽에 와도 다시 데려다 재우기!
+
+#포스트잇게임 #3세수면 #분리수면재훈련 #육아팁 #수면교육 #mom_sleep_lab`},
+
+  {id:'r14',num:'릴스 ⑭',title:'Q&A — 이사 후 혼자 못 자는 아이',sub:'좋은소식·무서움완화·포스트잇게임·형제있을때',tags:'#육아QA #분리수면 #수면교육 #3세이상',
+  cap:`💬 실제 질문 답변해드릴게요
+
+"이사 후 혼자 안 잔다는 아이 어떡하죠?" 😭
+
+일단 좋은 소식이 있어요.
+원인이 명확하면 충분히 되돌릴 수 있어요!
+이사·임시거주로 생긴 습관이라면 더 빨리 해결돼요 😊
+
+무서움 먼저 줄여요 🌙
+→ 빨간 미등 하나 두기
+→ 지켜주는 인형 지정
+→ 공감 먼저, 설득 나중
+❌ "무서운 거 없어"는 역효과!
+
+포스트잇 게임 써보세요 ⭐
+📝 방문에 포스트잇 3장 = 엄마 부르기 티켓
+🌟 안 쓰면 보상!
+
+형제가 있다면?
+→ 각자 따로 설득하기
+→ 첫째: "다 컸으니까 자기 방이 더 멋져"
+→ 형제끼리 같은 방도 OK
+
+3~5일만 버텨요 🤍
+새벽에 와도 안방에서 재우지 말고 다시 데려다 재우기!
+
+#육아QA #분리수면 #수면교육 #3세이상 #포스트잇게임 #이사후수면 #mom_sleep_lab`},
+
+  {id:'f23',num:'FEED ㉓',title:'눕히면 우는 신생아, 어떻게 해요?',sub:'왜그럴까·강요금지·지금당장할것·올바른순서',tags:'#신생아수면 #눕히면우는아기 #속싸개 #백색소음 #모로반사',
+  cap:`😭 눕히면 무조건 우는 아기, 어떻게 해요?
+
+저 임신 33주 예비엄마인데요, 이 부분이 제일 현실적인 고민이에요.
+
+결론부터 말씀드릴게요.
+
+3개월 전엔 강요하지 않아도 돼요.
+눕혔을 때 울면 안아서 달래줘도 돼요.
+억지로 울게 두는 건 이 시기엔 맞지 않아요.
+
+이 시기엔 아기가 상전이에요 😊
+자궁 밖 세상이 낯선 거예요.
+아기 잘못도, 부모 잘못도 아니에요 🤍
+
+근데 연습은 꾸준히 해야 해요.
+하루 몇 번, 단 몇 분이라도 눕히는 연습이 쌓이면
+3개월 이후가 훨씬 수월해져요.
+
+지금 당장 도움 되는 것들이에요.
+🧸 속싸개 — 모로 반사 억제
+🔊 백색소음 — 자궁 소리와 비슷해서 진정 효과
+💤 깊이 잠든 후 내려놓기 — 처음엔 이것도 OK
+⏱️ 점진적 이동 — 처음엔 밤의 절반만, 1~2주에 걸쳐 늘리기
+
+3개월 지나면 진짜 달라져요.
+조금만 버텨요 🌱
+
+슬라이드 넘겨서 자세히 확인해보세요 →
+저장해두고 꺼내보세요 🔖
+
+#신생아수면 #눕히면우는아기 #신생아육아 #0개월아기 #1개월아기 #2개월아기 #3개월아기 #속싸개 #백색소음 #모로반사 #수면교육 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'f24',num:'FEED ㉔',title:'출산가방 완성 체크리스트',sub:'산모용품1·산모용품2·아기용품·보호자·놓치기쉬운것·요약',tags:'#출산가방 #출산가방체크리스트 #출산준비 #임신33주',
+  cap:`🏥 미루고 미루다 드디어 출산가방 쌌어요 😅
+
+제가 직접 준비하면서 만든 목록이에요.
+참고해서 꺼내 쓰세요 🔖
+
+남편이랑 같이 쌌는데 "뭘 넣어야 해?"부터 시작함 😂
+
+의외로 많이 빠뜨리는 게 있더라고요.
+⚠️ 빨대컵 (제왕절개 후 진짜 필요해요)
+⚠️ 샴푸캡 (제왕이면 샤워 바로 못 해요)
+⚠️ 멀티탭 + 보조배터리
+⚠️ 압박스타킹 · 손목보호대
+⚠️ 산모 퇴원복, 카시트 설치 확인
+
+그리고 배냇저고리·속싸개·겉싸개는
+병원 출산선물에 포함되는 경우가 많아요.
+미리 확인하고 중복 구매 줄이세요!
+
+수유가운·잠옷은 조리원에서 주는 경우 많으니
+역시 미리 확인해보세요.
+
+전체 체크리스트는 슬라이드 넘겨보세요 →
+저장해두고 꺼내보세요 🔖
+
+#출산가방 #출산가방체크리스트 #출산준비 #임신33주 #임산부일상 #산모가방 #조리원준비 #신생아준비 #예비엄마 #고위험임신 #아빠육아 #분당제일여성병원 #mom_sleep_lab`},
+
+  {id:'f25',num:'FEED ㉕',title:'성남시 백일해 무료 예방접종',sub:'왜맞아야해·타이밍·신청방법·꿀팁·요약',tags:'#백일해예방접종 #성남시임산부 #성남시혜택 #임산부혜택',
+  cap:`💉 성남시 사는 임산부분들 이거 꼭 챙기세요!
+
+백일해 예방접종 성남시민은 무료예요.
+일반 병원에서 맞으면 1회 5만원인데요 😳
+
+임산부 · 배우자 · 조부모 모두 무료로 맞을 수 있어요.
+
+근데 타이밍이 진짜 중요해요.
+🤰 임산부 → 36주 이전에 맞아야 해요
+👨 배우자·조부모 → 출산 2주 전까지 완료
+(항체 생기는 데 2주 걸려요!)
+
+심사도 최대 7일 걸리니까 미리미리 신청하세요.
+
+신청 방법은 간단해요.
+서류 3종 (임신확인서 + 주민등록등본 + 가족관계증명서)
+성남시 홈페이지에서 온라인 신청하면 돼요.
+
+저는 4/13 신청했더니 4/14 하루 만에 완료 문자 왔어요 😊
+
+남편이 주사 무섭다고 해서
+"아기 안아픈 게 중요해, 오빠 안아픈 게 중요해?"
+한소리 했더니 바로 신청했습니다 😂
+
+슬라이드 넘겨서 신청 방법 확인해보세요 →
+저장해두고 꺼내보세요 🔖
+
+#백일해예방접종 #백일해 #성남시임산부 #성남시혜택 #임산부혜택 #임산부지원 #임신33주 #예비엄마 #임산부일상 #신생아건강 #아기건강 #mom_sleep_lab`},
+
+  {id:'r15',num:'릴스 ⑮',title:'두돌 아기 분리수면 지금 시작해도 될까요?',sub:'두돌이유리한이유·준비·단계별·한계시험',tags:'#두돌분리수면 #분리수면 #두돌육아 #24개월 #독립수면',
+  cap:`🛏️ 두돌인데 분리수면 시작해도 될까요?
+
+결론부터 말씀드릴게요. 늦지 않았어요. 오히려 지금이 좋아요 😊
+
+두돌은 "왜 자야 해?"가 통하는 시기예요.
+설명이 되고, 보상에 반응하고, 게임처럼 재밌게 가능해요.
+영아기보다 오히려 수월할 수 있어요.
+
+시작 전에 준비해주세요.
+1. 며칠 전부터 미리 설명하기
+2. 빨간 미등 + 지켜주는 인형
+3. 아이가 고른 이불·베개로 꾸미기
+4. 15분 취침 루틴 완성
+
+단계별로 분리해요.
+1~2일: 옆에서 재우기
+3~4일: "금방 올게" 나오기
+5~7일: 굿나잇 하고 나오기
+1주↑: 혼자 잠들기 완성!
+
+"물 줘, 뽀뽀 한 번 더" 끝없이 부를 땐
+포스트잇 게임 써보세요 📝
+
+두돌은 늦은 게 아니에요 🤍
+지금 시작하면 1~2주 안에 달라져요!
+
+지금 두돌 분리수면 고민 중이라면
+저장해두고 시작할 때 꺼내보세요 🔖
+
+#두돌분리수면 #분리수면 #두돌육아 #24개월 #독립수면 #수면교육 #포스트잇게임 #mom_sleep_lab`},
+
+  {id:'r16',num:'릴스 ⑯',title:'눕히면 우는 신생아, 어떻게 해요?',sub:'정상이에요·달래줘도OK·도움되는것들·점진적이동',tags:'#신생아수면 #눕히면우는아기 #속싸개 #백색소음',
+  cap:`😭 눕히면 무조건 우는 아기, 어떻게 해요?
+
+이 시기엔 강요 안 해도 돼요.
+울면 안아서 달래줘도 돼요.
+아기 잘못도, 부모 잘못도 아니에요 🤍
+
+대신 눕히는 연습은 꾸준히 해요.
+하루 몇 번, 단 몇 분이라도요.
+
+속싸개로 모로반사 억제하고
+백색소음 틀어놓으면 확실히 달라요.
+
+처음엔 완전히 잠든 후 내려놓는 것도 OK
+밤의 절반만 아기 침대, 1~2주에 걸쳐 늘려가기.
+
+3개월 지나면 진짜 달라져요 🌱
+지금 눕히는 연습이 나중을 만들어요 🤍
+
+#신생아수면 #눕히면우는아기 #신생아육아 #0개월아기 #속싸개 #백색소음 #모로반사 #수면교육 #예비엄마 #수면컨설턴트 #mom_sleep_lab`},
+
+  {id:'r17',num:'릴스 ⑰',title:'출산가방 드디어 쌌어요 (남편이랑 같이 😂)',sub:'남편반응·남편담당·의외로빠뜨리는것·굳이필요없는것',tags:'#출산가방 #출산준비 #임신33주 #임산부일상',
+  cap:`🏥 출산가방 드디어 쌌어요!
+
+미루고 미루다 남편이랑 같이 쌌는데
+"뭘 넣어야 해?"부터 물어봄 😂
+
+남편 담당 정해줬어요.
+카메라 충전, 보조배터리, 비상식량, 카시트 설치 확인.
+본인 짐은 본인이 알아서 😂
+
+의외로 많이 빠뜨리는 게 있더라고요.
+빨대컵, 멀티탭, 샴푸캡, 압박스타킹, 산모 퇴원복.
+
+그리고 배냇저고리·속싸개·겉싸개는
+병원에서 주는 경우 많으니 미리 확인하세요.
+중복 구매 하지 마세요 😊
+
+수유가운·잠옷도 조리원에서 주는 곳 많아요!
+
+이제 진짜 준비됐어요 🤍
+같이 출산 준비 중인 분 댓글로요 🙋
+
+#출산가방 #출산준비 #임신33주 #임산부일상 #예비엄마 #고위험임신 #아빠육아 #남편육아 #출산브이로그 #조리원준비 #분당제일여성병원 #mom_sleep_lab`},
+
+  {id:'r18',num:'릴스 ⑱',title:'성남시 백일해 무료 맞은 후기 😂',sub:'왜맞아야해·타이밍핵심·신청방법·남편에피소드',tags:'#백일해예방접종 #성남시임산부 #성남시혜택',
+  cap:`💉 성남시 사는 임산부분들 이거 꼭 챙기세요!
+
+백일해 주사 5만원인데 성남시민은 무료예요.
+임산부·배우자·조부모 모두요!
+
+신생아는 아직 면역이 없어서
+가족한테 옮는 경우가 많아요.
+그래서 부모·조부모가 먼저 맞는 게 핵심이에요.
+
+타이밍이 제일 중요해요.
+🤰 임산부 → 36주 이전
+👨 배우자·조부모 → 출산 2주 전까지
+항체 생기는 데 2주 걸리거든요!
+
+서류 3종 챙겨서 성남시 홈페이지에서 온라인 신청.
+저는 신청 다음날 바로 완료 문자 왔어요 😊
+
+남편이 주사 무섭다고 해서
+"아기 안아픈 게 중요해, 오빠 안아픈 게 중요해?"
+한소리 했더니 바로 신청함 😂
+
+성남 사는 임산부분들 얼른 신청하세요 🤍
+안 맞을 이유가 없어요!
+
+자세한 신청 방법은 프로필 피드에서 확인하세요 🔖
+
+#백일해예방접종 #백일해 #성남시임산부 #성남시혜택 #임산부혜택 #임산부지원 #임신33주 #예비엄마 #임산부일상 #신생아건강 #고위험임신 #mom_sleep_lab`},
+];
+
+const EXTRAS=[
+  {id:'i1',num:'인포 ①',title:'수면 교육 골든타임 총정리',sub:'0~3개월~12개월 타임라인·핵심포인트3가지',tags:'#수면교육골든타임 #인포그래픽 #아기수면 #저장필수',type:'ti',
+  cap:`저장 필수 📌 수면 교육 골든타임 총정리
+
+언제 시작해야 제일 효과적일까요?
+
+⭐ 4~6개월이 골든타임이에요.
+습관이 굳기 전, 아기가 새로운 방식에 적응하기 제일 쉬운 때예요.
+
+너무 이르면 → 멜라토닌이 없어서 아기가 준비 안 돼요
+골든타임 → 4~6개월이 최적이에요
+늦어도 돼요 → 6개월 이후도 충분히 가능해요
+
+시작 전 소아과 상담 + 5가지 체크리스트 확인 필수!
+
+#수면교육골든타임 #인포그래픽 #아기수면 #수면교육 #저장필수 #mom_sleep_lab`},
+
+  {id:'i2',num:'인포 ②',title:'개월수별 수면 시간표 총정리',sub:'1개월~18개월 깨어있는시간·낮잠·취침시간',tags:'#개월수별수면 #수면시간표 #아기수면 #저장필수',type:'ti',
+  cap:`저장 필수 📌 개월수별 수면 시간표 총정리
+
+우리 아기 개월수에 맞는 수면 시간 한 번에 확인하세요!
+
+1개월 → 깨어있는 시간 1시간 / 낮잠 5~6시간 / 총 수면 14~17h
+4개월 → 깨어있는 시간 2시간 / 낮잠 4시간 / 총 수면 12~15h ⭐
+6개월 → 깨어있는 시간 2시간30분 / 낮잠 3.5시간 / 총 수면 12~15h
+12개월 → 깨어있는 시간 4~5시간 / 낮잠 1~2회 / 총 수면 11~14h
+
+⚠️ 낮잠 1회 최대 2시간 초과 금지
+숫자보다 아기 신호가 더 중요해요!
+하품·눈비비기·멍한 표정이 보이면 바로 재워요.
+
+저장해두고 개월수 바뀔 때마다 꺼내보세요 🔖
+
+#개월수별수면 #수면시간표 #아기수면 #수면교육 #신생아수면 #저장필수 #mom_sleep_lab`},
+
+  {id:'i3',num:'인포 ③',title:'너무 일찍 깨는 아기 해결법',sub:'4가지원인·지금당장할것3단계·주의사항',tags:'#이른기상 #새벽기상 #아기수면 #저장필수',type:'ti',
+  cap:`저장 필수 📌 너무 일찍 깨는 아기 해결법
+
+새벽 5시에 일어나는 아기, 이유가 있어요.
+
+원인 4가지예요.
+🌑 빛 문제 — 아침 햇빛이 멜라토닌 억제
+🌙 낮잠 문제 — 오후 낮잠이 너무 길었음
+⏰ 취침 문제 — 너무 일찍 재웠을 때
+😴 수면 문제 — 새벽에 혼자 다시 잠들지 못함
+
+지금 당장 해볼 것 (이 순서대로!)
+1. 암막 완벽하게 — 틈까지 막기. 이것만 해도 달라져요
+2. 백색소음 아침까지 유지 — 새벽 외부 소음 차단
+3. 한 가지씩 바꾸기 — 1주일씩 기다리기
+
+⚠️ 이른 기상은 고치기 제일 어려운 수면 문제예요
+일찍 깼다고 낮잠 일찍 재우면 더 악화돼요!
+
+⭐ 6시 이후 기상은 이른 기상이 아니에요 — 정상이에요!
+
+#이른기상 #새벽기상 #아기수면 #수면교육 #암막커튼 #백색소음 #저장필수 #mom_sleep_lab`},
+];
+
+const EXTRAS2=[
+  {id:'pdf1',num:'PDF ①',title:'개월수별 수면 교육 시작 가이드',sub:'7페이지 · 5,900원 (얼리버드 4,900원)',tags:'판매가: 5,900원 / 얼리버드: 4,900원',type:'tp',cap:''},
+  {id:'comic1',num:'만화 ①',title:'임신 혈압 관찰 일기',sub:'6장 · AI이미지 기반 만화 릴스',tags:'#임신성고혈압 #임신일기 #임산부혈압',type:'tc',
+  cap:`😰 임신 32주인데 혈압이 자꾸 올라가요
+
+2월부터 매일 아침저녁 혈압을 재고 있어요.
+140 넘으면 내원하라고 해서요.
+
+그러다 4월 3일...
+146, 153... 계속 올라가는 거예요 😱
+바로 병원 달려갔더니
+소변·혈액검사는 정상이래요.
+근데 혈압약을 처방받았어요.
+
+그리고 오늘 (수요일)
+또 150을 넘었어요. 153/87.
+이번 주만 벌써 두 번째 병원이에요 😂
+
+근데요...
+아기 태동은 엄청 많아요 ✨
+아기는 멀쩡한데 엄마만 힘들어요 😂
+
+임신성 고혈압 경험하신 분 계신가요?
+댓글로 알려주세요 🙋
+
+#임신32주 #임신성고혈압 #임산부혈압 #고위험임신 #임신일기 #임산부일상 #예비엄마 #임신중 #태동 #mom_sleep_lab`},
+  {id:'comic2',num:'만화 ②',title:'결혼반지 빼는 이야기 (부종)',sub:'7장 샘플 · 📸 실사 3장 촬영 PENDING',tags:'📸 퉁퉁부은손·반지빼는영상·반지+손 촬영 필요',type:'tc',
+  cap:`💍 33주차에 결혼반지를 뺐어요
+
+이유가 좀 슬퍼요 😢 근데 웃겨요 😂
+
+결혼식 때는 너무 헐렁해서 혹시 빠질까봐 걱정했던 반지예요.
+
+근데 33주 지금은요...
+손가락이 소시지가 됐어요 😱
+
+친구한테 연락이 왔어요.
+"나도 그랬어. 잘못하면 뺀지로 반지 잘라야 해 😱"
+
+더 붓기 전에 빼야겠다 싶어서
+결국 빼버렸어요.
+
+근데요.
+결혼식 때 잘못 샀던 반지가
+임신하니까 딱 맞게 됐네 😂
+
+출산하고 나면 다시 낄 수 있겠죠? 🥹
+같은 경험 있으신 분 댓글로 알려주세요 🙋
+
+#임신33주 #임신부종 #임산부일상 #결혼반지 #임신일기 #예비엄마 #mom_sleep_lab`},
+  {id:'c1',num:'상담 ①',title:'지유 케이스 전체 흐름',sub:'5페이지 · 상담 케이스 스터디',tags:'상담 문서',type:'tp',cap:''},
+  {id:'c2',num:'상담 ②',title:'지유 수면 계획서',sub:'5페이지 · 실제 수면 계획서 샘플',tags:'상담 문서',type:'tp',cap:''},
+  {id:'f24e',num:'피드 ㉔',title:'출산가방 완성 체크리스트',sub:'7장 · 산모·아기·보호자·놓치기쉬운것',tags:'#출산가방 #출산준비 #임산부일상',type:'tp',cap:''},
+  {id:'f25e',num:'피드 ㉕',title:'성남시 백일해 무료 예방접종',sub:'6장 · 대상·타이밍·신청방법·꿀팁',tags:'#백일해 #성남시혜택 #임산부혜택',type:'tp',cap:''},
+];
+
+const CAL=[
+  {date:'4/7 (월)',title:'소개 릴스',type:'릴스①',lid:'r1'},
+  {date:'4/8 (화)',title:'0~2개월 수면 가이드',type:'피드①',lid:'f1'},
+  {date:'4/10 (목)',title:'4개월 수면 퇴행',type:'릴스⑥',lid:'r6'},
+  {date:'4/12 (토)',title:'수면 연관물 피드',type:'피드④',lid:'f4'},
+  {date:'4/14 (월)',title:'낮잠 5시간 릴스',type:'릴스③',lid:'r3'},
+  {date:'4/16 (수)',title:'3~6개월 가이드',type:'피드②',lid:'f2'},
+  {date:'4/18 (금)',title:'골든타임 인포그래픽',type:'인포①',lid:'i1'},
+  {date:'4/19 (토)',title:'마녀의 시간 릴스',type:'릴스④',lid:'r4'},
+  {date:'4/21 (월)',title:'7~9개월 가이드',type:'피드③',lid:'f3'},
+  {date:'4/23 (수)',title:'수면 환경 세팅 릴스',type:'릴스⑨',lid:'r9'},
+  {date:'4/25 (금)',title:'수면시간표 인포그래픽',type:'인포②',lid:'i2'},
+  {date:'4/26 (토)',title:'수면교육은 내가 육아휴직은 남편이',type:'릴스⑤',lid:'r5'},
+  {date:'4/28 (월)',title:'골든타임 피드',type:'피드⑤',lid:'f5'},
+  {date:'4/30 (수)',title:'혈압 만화 릴스',type:'만화①',lid:'comic1'},
+  {date:'5/2 (금)',title:'취침루틴 피드',type:'피드⑦',lid:'f7'},
+  {date:'5/5 (월)',title:'속싸개 가이드',type:'피드⑩',lid:'f10'},
+  {date:'5/7 (수)',title:'백색소음 가이드',type:'피드⑬',lid:'f13'},
+  {date:'5/9 (금)',title:'이른 기상 인포그래픽',type:'인포③',lid:'i3'},
+  {date:'5/12 (월)',title:'분리수면 왜 하나',type:'피드⑳',lid:'f20'},
+  {date:'5/14 (수)',title:'분리수면 언제부터',type:'릴스⑫',lid:'r12'},
+  {date:'5/16 (금)',title:'자격증 공부 피드',type:'피드⑥',lid:'f6'},
+  {date:'미정',title:'눕히면 우는 신생아',type:'피드㉓',lid:'f23'},
+  {date:'미정',title:'눕히면 우는 신생아 릴스',type:'릴스⑯',lid:'r16'},
+  {date:'미정',title:'출산가방 체크리스트',type:'피드㉔',lid:'f24'},
+  {date:'미정',title:'출산가방 드디어 쌌어요',type:'릴스⑰',lid:'r17'},
+  {date:'미정',title:'성남시 백일해 무료접종',type:'피드㉕',lid:'f25'},
+  {date:'미정',title:'성남시 백일해 무료접종 릴스',type:'릴스⑱',lid:'r18'},
+];
+
+// 저장소
+let D={};
+try{D=JSON.parse(localStorage.getItem('slm_v3')||'{}');}catch{}
+function gd(id){return D[id]||{status:'pending',date:'',memo:''};}
+function sd(id,k,v){if(!D[id])D[id]={status:'pending',date:'',memo:''};D[id][k]=v;}
+
+// 카드 렌더
+function rc(item,tc){
+  const d=gd(item.id);
+  const tl=tc==='tf'?'피드':tc==='tr'?'릴스':tc==='ti'?'인포그래픽':tc==='tp'?'PDF·문서':'만화';
+  const capHtml=item.cap?`
+    <div class="ctog" onclick="toggleCap(this)">▼ 캡션 보기</div>
+    <div class="cbox">${item.cap}<br><button class="copy-btn" onclick="copyCap(this)">📋 복사</button></div>`:'';
+  return `<div class="card" id="c-${item.id}">
+    <div class="ct"><div class="inum">${item.num}</div><div class="tbge ${tc}">${tl}</div></div>
+    <div class="ititle">${item.title}</div>
+    <div class="isub">${item.sub}</div>
+    <div class="itags">${item.tags}</div>
+    ${capHtml}
+    <div class="sarea">
+      <div class="srow">
+        <div class="slbl">업로드</div>
+        <div class="sbtns">
+          <button class="sb pending${d.status==='pending'?' on':''}" onclick="setSt('${item.id}','pending',this)">준비중</button>
+          <button class="sb uploaded${d.status==='uploaded'?' on':''}" onclick="setSt('${item.id}','uploaded',this)">✅ 완료</button>
+          <button class="sb skip${d.status==='skip'?' on':''}" onclick="setSt('${item.id}','skip',this)">건너뜀</button>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="slbl">업로드일</div>
+        <input type="date" class="dinput" value="${d.date||''}" onchange="sd('${item.id}','date',this.value);updProg()">
+      </div>
+      <div class="srow" style="align-items:flex-start">
+        <div class="slbl" style="padding-top:3px">메모</div>
+        <textarea class="minput" rows="2" placeholder="메모 입력..." onchange="sd('${item.id}','memo',this.value)">${d.memo||''}</textarea>
+      </div>
+    </div>
+  </div>`;
+}
+
+function setSt(id,st,btn){
+  const card=btn.closest('.card');
+  card.querySelectorAll('.sb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  sd(id,'status',st);
+  updProg();
+}
+
+function toggleCap(el){
+  const box=el.nextElementSibling;
+  const open=box.classList.toggle('on');
+  el.textContent=open?'▲ 캡션 닫기':'▼ 캡션 보기';
+}
+
+function copyCap(btn){
+  const box=btn.closest('.cbox');
+  const text=box.innerText.replace('📋 복사','').trim();
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✅ 복사됨!';
+    setTimeout(()=>btn.textContent='📋 복사',1500);
+  });
+}
+
+function updProg(){
+  const fu=FEEDS.filter(f=>(D[f.id]||{}).status==='uploaded').length;
+  document.getElementById('fp').style.width=(fu/FEEDS.length*100)+'%';
+  document.getElementById('ft').textContent=`${fu} / ${FEEDS.length} 완료`;
+  document.getElementById('fp2').textContent=Math.round(fu/FEEDS.length*100)+'%';
+
+  const ru=REELS.filter(r=>(D[r.id]||{}).status==='uploaded').length;
+  document.getElementById('rp').style.width=(ru/REELS.length*100)+'%';
+  document.getElementById('rt').textContent=`${ru} / ${REELS.length} 완료`;
+  document.getElementById('rp2').textContent=Math.round(ru/REELS.length*100)+'%';
+
+  const eu=EXTRAS.filter(e=>(D[e.id]||{}).status==='uploaded').length;
+  document.getElementById('total-done').textContent=fu+ru+eu;
+  renderCal();
+}
+
+function renderCal(){
+  document.getElementById('cal-body').innerHTML=CAL.map(c=>{
+    const d=D[c.lid]||{};
+    const st=d.status||'pending';
+    const dc=st==='uploaded'?'d-done':st==='skip'?'d-pend':'d-ready';
+    const stxt=st==='uploaded'?`✅ ${d.date||'날짜미입력'}`:st==='skip'?'⏭ 건너뜀':'📋 준비완료';
+    return `<tr><td class="dc">${c.date}</td><td>${c.title}</td><td style="font-size:10px;color:var(--sky);font-weight:700">${c.type}</td><td><span class="dot ${dc}"></span>${stxt}</td></tr>`;
+  }).join('');
+}
+
+function showPane(name,el){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('p-'+name).classList.add('on');
+  if(el)el.classList.add('on');
+}
+
+function doSave(){
+  document.querySelectorAll('.card').forEach(card=>{
+    const id=card.id.replace('c-','');
+    const m=card.querySelector('.minput');
+    const di=card.querySelector('.dinput');
+    if(m)sd(id,'memo',m.value);
+    if(di)sd(id,'date',di.value);
+  });
+  try{localStorage.setItem('slm_v3',JSON.stringify(D));}catch{}
+  const t=document.getElementById('toast');
+  t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2000);
+}
+
+// 초기 렌더
+document.getElementById('feed-grid').innerHTML=FEEDS.map(f=>rc(f,'tf')).join('');
+document.getElementById('reels-grid').innerHTML=REELS.map(r=>rc(r,'tr')).join('');
+document.getElementById('extras-grid').innerHTML=EXTRAS.map(e=>rc(e,'ti')).join('');
+document.getElementById('extras2-grid').innerHTML=EXTRAS2.map(e=>rc(e,e.type||'tc')).join('');
+renderCal();
+updProg();
+</script>
+</body>
+</html>
